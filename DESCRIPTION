@@ -12,6 +12,7 @@ LazyData: true
 RoxygenNote: 6.1.1
 Imports: 
     ggplot2,
-    tidyr
+    tidyr,
+    car
 Suggests: 
     testthat
