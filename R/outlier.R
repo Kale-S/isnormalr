@@ -60,3 +60,36 @@ hist_x <- function(X){
 
   return(h)
 }
+
+#' @title
+#' Plots the cooks distance
+#'
+#' @param lm a lm model
+#'
+#' @return
+#' A plot of the cooks distance
+#'
+#' @export
+#' @import
+#' car
+cooks.dist <- function(lm){
+
+  cutoff <- 4/((nrow(mtcars)-length(lm$coefficients)-2))
+  cd <- plot(lm, which=4, cook.levels=cutoff)
+  return(cd)
+}
+
+#' @title
+#' Plots the influence of observation on the regression line
+#'
+#' @param lm linear model
+#'
+#' @return
+#' A plot
+#' @export
+#' @import
+#' car
+influence.obs <- function(lm){
+  io <-   influencePlot(lm, id.method="identify", main="Influence Plot", sub="Circle size is proportial to Cook's Distance" )
+  return(io)
+}
