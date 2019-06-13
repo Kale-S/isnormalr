@@ -4,6 +4,8 @@
 #'
 #' @return
 #' @export
+#' @import
+#' stringr
 #'
 #' @examples
 is.normal <- function(object){
@@ -21,17 +23,19 @@ is.normal <- function(object){
   qq <- qq_plot(error)
   res_hist <- resid_hist(error)
   swt <- shaprio_test(error)
+  swt.s <- paste('Statistik: ',toString(swt[1]),
+                 'P-Value: ', toString(swt[2]))
   bwp <- box_plot_x(X)
   x_hist <- hist_x(X)
-
+  v <- VIF(object)
 
   return(list(qq,
          res_hist,
          bwp,
          x_hist,
-         paste('----Shapiro Wilke Test----',
-         '\nStatistik: ', swt[1],
-          '\nP-Value: ', swt[2])))
+         cat('--------- Shapiro Wilke Test-----\n',swt.s),
+         cooks.dist(object), # the plot is plotted form inside the function (plot not saved in the variable
+         v))
 
 
 }
