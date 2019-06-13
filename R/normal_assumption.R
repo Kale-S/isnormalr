@@ -74,8 +74,8 @@ shaprio_test <- function(resid){
 
   st <- shapiro.test(resid)
 
-  statistic <- st[1]
-  p.value <- st[2]
+  statistic <- st$statistic
+  p.value <- st$p.value
 
   return(c(statistic, p.value))
 }
