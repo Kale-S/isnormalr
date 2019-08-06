@@ -70,14 +70,49 @@ qq_plot <- function(resid){
 #'
 #' @return
 #' @export
-shaprio_test <- function(resid){
+shapirio_test <- function(x){
+  n <- length(x)
+  x <- sort(x)  # sorting the data in ascending order
+  hf <- function(i, n){
+    res <-qnorm((i - (3/8)) / (n + 1/4))
+  }
+  m <- sapply(1:n, FUN=hf, n = n)
+  w <- rep(0, n)  # preallocating weights
 
-  st <- shapiro.test(resid)
+  b <- 1/sqrt(t(m) %*% m) %*% m
+  u <- 1/sqrt(n)
 
-  statistic <- st$statistic
-  p.value <- st$p.value
+  p1 <- c(-2.706056, 4.434685, -2.071190, -0.147981, 0.221157, b[n])
+  p2 <- c(-3.582633, 5.682633, -1.752461, -0.293762, 0.042981, b[n-1])
 
-  return(c(statistic, p.value))
+  w[n] <- t(p1) %*% as.vector(c(rev(poly(u, degree=length(p1) - 1,
+                                         raw=TRUE)[1, ]), 1))
+  w[1] <- -w[n]
+
+  if(n == 3){
+    w[1] <- 0.707106781
+    w[n] <- -w[1]
+  }
+  if(n >= 6){
+    w[n - 1] <- t(p2) %*% as.vector(c(rev(poly(u, degree=length(p2) - 1,
+                                                 raw=TRUE)[1, ]), 1))
+
+    w[2] <- -w[n - 1]
+
+    ct <- 3
+    phi <- (t(m) %*% m - (2 * m[n]^2) - (2 * m[n-1]^2)) /
+            (1-(2*w[n]^2) - (2*w[n-1]^2))
+  }else{
+    ct = 2
+    phi <- (t(m) %*% m - 2*m[n]^2) / (1-2*w[n]^2)
+  }
+  if(n==3){
+    phi <- 1
+  }
+  w[seq(ct, n-ct+1)] <- m[seq(ct, n-ct+1)]/ rep(sqrt(phi), length(n - ct - 1))
+  W <- (t(w) %*% w)^2 / (t((x-mean(x))) %*% (x-mean(x)))
+
+  return(W)
+
 }
-
 
