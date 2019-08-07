@@ -42,8 +42,7 @@ bp_test <- function(u, X){
 
   return(bp)
 
-  #res <- lmtest::bptest(model)
-  #return(res$statistic)
+
 }
 
 #' Spread-Level Plot
