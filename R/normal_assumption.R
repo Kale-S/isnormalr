@@ -21,20 +21,26 @@
 #' y <- X %*% b + e
 #' resid_hist(lm(y ~ X))
 
-resid_hist <- function(resid){
+resid_hist <- function(error){
+  # safe the number of obs. for the calculation of the bins
+  n <- length(error)
   # safe the input as data.frame
-  error <- data.frame(resid)
+  error <- data.frame(error)
   # safe the mean of the residuals
   error.mean <-  colMeans(error)
   # safe the standard diviation of the residals
   error.sd <- apply(error, 2, sd, na.rm=TRUE)
 
   # ------------- generate plot
-  x <- seq(min(error), max(error), length.out=10000)
-  df <- with(error, data.frame(x=x, y=dnorm(x, error.mean, error.sd)))
+  x.grid <- seq(min(error), max(error), length.out=10000)
+  dens <- dnorm(x.grid, error.mean, error.sd)
+  df <- with(error, data.frame(x=x.grid, y=dens))
+  bins <- isnormalr::sturge_rule(n)
   h <- ggplot2::ggplot(error) +
-    ggplot2::geom_histogram(aes(x = resid, y=..density..))
-  h <- h + ggplot2::geom_line(data=df, aes(x=x, y=y), color='red')
+    ggplot2::geom_histogram(aes(x = error, y=..density..,
+                                col=I('black')),
+                            alpha=0.6, bins=bins)
+  h <- h + ggplot2::geom_line(data=df, aes(x=x.grid, y=y), color='red')
 
   return(h)
 
@@ -48,16 +54,37 @@ resid_hist <- function(resid){
 #'
 #' @return
 #' This function returns a QQ-plot
+#' @import
+#' ggplot2
 #'
 #' @export
-qq_plot <- function(resid){
-  # safe the input as error
-  error <- data.frame(resid)
+qq_plot <- function(error){
+  n <- length(error)
+  mu <- mean(error)
+  sd <- sd(error)
 
-  # ------------- generate plot
-  qq <- ggplot2::qplot(sample = resid, data = error)
+  # Compute n evenly spaced points on the interval (0, 1)
+  prob <- (1:n) / (n + 1)
+  # Calculate the theroetical quantiles
+  normal.quantiles <- qnorm(prob, mu, sd)
+
+  df <- data.frame(normal.quantiles = sort(normal.quantiles),
+                   sample.quantiles = sort(error))
+  # plot the results
+  qq <- ggplot2::ggplot(df, aes(x=normal.quantiles, y=sample.quantiles)) +
+          geom_point() +
+          geom_abline(slope=1, color='magenta', size=1.2)
 
   return(qq)
+
+
+
+  plot(sort(normal.quantiles), sort(error))
+  abline(0, 1)
+
+
+
+
 }
 
 #' @title
@@ -116,3 +143,12 @@ shapirio_test <- function(x){
 
 }
 
+#' Struge Rule
+#' @export
+sturge_rule <- function(n){
+  # Defines the bin sizes for the diagramms
+  #K <- 2 * IQR(x[, 1]) / (dim(x)[1]^(1/3))
+  K <- 1 + 3.322 * log10(n)
+  K <- round(K)
+
+}
