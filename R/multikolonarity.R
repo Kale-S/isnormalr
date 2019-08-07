@@ -17,7 +17,7 @@ VIF <- function(X){
 
   for(i in 1:k){
     # Step 1
-    mod <- lm(X[, i] ~ X[, -i])
+    mod <- lm(X[ , i] ~ ., data=X[, -i])
     # Step 2
     r2 <- summary(mod)$r.squared
     res[i] <- 1/(1 - r2)
