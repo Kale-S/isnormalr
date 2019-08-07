@@ -40,7 +40,6 @@ box_plot_x <- function(X){
 #'
 #' @import
 #' ggplot2
-#' tidyr
 #'
 #' @examples
 hist_x <- function(X){
@@ -48,15 +47,15 @@ hist_x <- function(X){
   # Used to hold only numeric columns
   nums <- unlist(lapply(X, is.numeric))
 
-  h <- X[, nums] %>%
+  X <- X[, nums]
     # Convert to key-value pairs
-    gather() %>%
+  X <- gather(X)
     # Plot the values
-    ggplot2::ggplot(aes(value)) +
-    # In separate panals
-    ggplot2::facet_wrap(~ key, scales='free') +
-    # As histogram
-    ggplot2::geom_histogram()
+  h <-  ggplot2::ggplot(X, aes(value)) +
+      # In separate panals
+      ggplot2::facet_wrap(~ key, scales='free') +
+      # As histogram
+      ggplot2::geom_histogram()
 
   return(h)
 }
