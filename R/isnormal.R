@@ -16,8 +16,7 @@ is.normal <- function(object){
   }
   #------------- inizelizing of variable
   X <- object$model[, -1]
-  if(typeof(X) == 'list'){x <- data.frame(sapply(x, c))}
-  y <- as.vector(object$model[, 1])
+  y <- object$model[, 1]
   error <- resid(object)
   y_hat <- fitted(object)
   n <- length(error)
@@ -37,7 +36,7 @@ is.normal <- function(object){
   x_hist <- hist_x(X)
   v <- VIF(X)
 
-  bp <- bp_test(object)
+  bp <- bp_test(error, X)
   slp <- Spread.level.plot(object)
 
 
