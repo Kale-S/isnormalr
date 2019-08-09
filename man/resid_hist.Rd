@@ -4,7 +4,7 @@
 \alias{resid_hist}
 \title{Histogramm of the residuals}
 \usage{
-resid_hist(resid)
+resid_hist(error)
 }
 \arguments{
 \item{df}{Dataframe}

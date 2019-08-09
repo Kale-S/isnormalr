@@ -5,8 +5,6 @@
 #'
 #' @return kritical value
 #' @export
-#' @import
-#' lmtest
 #' @examples
 bp_test <- function(u, X){
 

@@ -4,7 +4,7 @@
 \alias{qq_plot}
 \title{QQ-Plot of the residuals}
 \usage{
-qq_plot(resid)
+qq_plot(error)
 }
 \value{
 This function returns a QQ-plot

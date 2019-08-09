@@ -4,8 +4,6 @@
 #'
 #' @return
 #' @export
-#' @import
-#' stringr
 #'
 #' @examples
 is.normal <- function(object){
