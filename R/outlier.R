@@ -115,17 +115,30 @@ cooks.dist <- function(mod){
 #' @import
 #' ggplot2
 #' @examples
-plot.cd <- function(cd){
+plot.cd <- function(cd, p){
   df_cd <- data.frame("cd"=cd)
   names <- rownames(df_cd)
   cd.plot <- ggplot(df_cd, aes(x = names, y = cd)) +
-    geom_bar(stat = 'identity', width=0.2)
+    geom_bar(stat = 'identity', width=0.2) +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.3),
+          axis.ticks = element_blank()) +
+    scale_x_discrete(name='Observation') +
+    scale_y_continuous(name='Cooks Distance',
+                       limits=c(0,max(df_cd$cd) + 0.1))
 
-  if(typeof(names) == 'character'){
-    cd.plot +
-      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+## add the threshold value
+  th.value <- qf(0.5, p, dim(df_cd)[1] - p) # 3 * mean(df_cd$cd)
+  large.obs <- which(df_cd$cd >= th.value)
+  names.large.obs <- names[large.obs]
+
+  cd.plot <- cd.plot +
+    geom_abline(slope=0, intercept=th.value, col = "red", lty=2)
+
+  if(th.value <= max(df_cd$cd)){
+    cd.plot <- cd.plot +
+      geom_text(aes(label=ifelse(df_cd$cd>th.value, name,'')),
+                size=2, angle=45)
   }
-
   return(cd.plot)
 }
 
