@@ -76,15 +76,6 @@ qq_plot <- function(error){
           geom_abline(slope=1, color='magenta', size=1.2)
 
   return(qq)
-
-
-
-  plot(sort(normal.quantiles), sort(error))
-  abline(0, 1)
-
-
-
-
 }
 
 #' @title
