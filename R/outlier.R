@@ -136,8 +136,8 @@ plot.cd <- function(cd, p){
 
   if(th.value <= max(df_cd$cd)){
     cd.plot <- cd.plot +
-      geom_text(aes(label=ifelse(df_cd$cd>th.value, name,'')),
-                size=2, angle=45)
+      geom_text(aes(label=ifelse(df_cd$cd>th.value, names,'')),
+                size=2, angle=45, hjust=0.1)
   }
   return(cd.plot)
 }
