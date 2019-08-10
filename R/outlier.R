@@ -71,12 +71,65 @@ hist_x <- function(X){
 #' @export
 #' @import
 #' car
-cooks.dist <- function(lm){
+cooks.dist <- function(mod){
+# Cook's distance as levrage representation
 
-  cutoff <- 4/((nrow(mtcars)-length(lm$coefficients)-2))
-  cd <- plot(lm, which=4, cook.levels=cutoff)
-  return(cd)
+  # Extract the Variable
+  X <- data.frame(mod$model)
+  y_hat <- predict(mod, newdata=X)
+  formula <- mod$call$formula
+  e <- mod$residuals
+  n <- dim(X)[1]
+  p <- dim(X)[2]
+  s2 <- sum(e^2) / (n - p)
+  # Define a Vector for the results
+  D <- rep(0, n)
+
+  for(i in 1:n){
+    X_without <- X[-i, ]
+    model_without <- lm(formula=formula, data=X_without)
+    fit_without <- predict(model_without, newdata=X)
+    D[i] <- sum((y_hat - fit_without)^2) / (p * s2)
+  }
+  #return(D)
+
+  # second case
+  X <- model.matrix(mod)
+  e <- mod$residuals
+
+  H <- X %*% solve(t(X) %*% X) %*% t(X)
+  h <- diag(H)
+
+  D2 <- (e^2 / (s2 * p)) * (h / (1 - h)^2)
+
+  return(list(D,
+              D2))
 }
+
+#' Visualisation of the cook's distances
+#'
+#' @param cd Cook's distance
+#'
+#' @return Barplot
+#' @export
+#' @import
+#' ggplot2
+#' @examples
+plot.cd <- function(cd){
+  df_cd <- data.frame("cd"=cd)
+  names <- rownames(df_cd)
+  cd.plot <- ggplot(df_cd, aes(x = names, y = cd)) +
+    geom_bar(stat = 'identity', width=0.2)
+
+  if(typeof(names) == 'character'){
+    cd.plot +
+      theme(axis.text.x = element_text(angle = 90, hjust = 1))
+  }
+
+  return(cd.plot)
+}
+
+
 
 #' @title
 #' Plots the influence of observation on the regression line
@@ -92,3 +145,4 @@ influence.obs <- function(lm){
   io <-   influencePlot(lm, id.method="identify", main="Influence Plot", sub="Circle size is proportial to Cook's Distance" )
   return(io)
 }
+
