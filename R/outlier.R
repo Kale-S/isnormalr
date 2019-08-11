@@ -69,8 +69,6 @@ hist_x <- function(X){
 #' A plot of the cooks distance
 #'
 #' @export
-#' @import
-#' car
 influence.observation <- function(mod){
 # Cook's distance as levrage representation
 
@@ -214,7 +212,6 @@ influence.plot <- function(r, h, d){
 
 
   return(p)
-  #io <-   influencePlot(lm, id.method="identify", main="Influence Plot", sub="Circle size is proportial to Cook's Distance" )
-  #return(io)
+
 }
 
