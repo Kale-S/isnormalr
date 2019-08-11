@@ -13,6 +13,7 @@ RoxygenNote: 6.1.1
 Imports: 
     ggplot2,
     tidyr,
-    car
+    car,
+    ggrepel
 Suggests: 
     testthat
