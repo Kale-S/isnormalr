@@ -13,39 +13,53 @@ is.normal <- function(object){
     print('Some error later')
   }
   #------------- inizelizing of variable
-  X <- object$model[, -1]
+  X <- object$model[, -1]  # without intercept
   y <- object$model[, 1]
   error <- resid(object)
   y_hat <- fitted(object)
-  n <- length(error)
+  n <- dim(X)[1]
+  p <- dim(X)[2]
+
 
   if(is.na(n) || n < 3L){
     stop('sample size must be larger then 3')  # nessercary for the
   }else if(n > 5000){                           # Shapiro-Test
     message('Shapiro-Wilk statistic might be inaccurate due to large sample size ( > 5000)')
   }
-
+# test for normality
   qq <- qq_plot(error)
   res_hist <- resid_hist(error)
-  #swt <- shapirio_test(error)
+  swt <- Shapiro_Wilk.test(error)
   #swt.s <- paste('Statistik: ',toString(swt[1]),
   #               'P-Value: ', toString(swt[2]))
+# test for outlier
   bwp <- box_plot_x(X)
-  x_hist <- hist_x(X)
-  v <- VIF(X)
+  #x_hist <- hist_x(X)
+  inf.obs <- influence.observation(object)
 
+  cd.plot <- isnormalr:::plot.cd(inf.obs$cooks.distance, p)
+  inf.plot <- influence.plot(inf.obs$standardized.residuals,
+                             inf.obs$leverage.value,
+                             inf.obs$cooks.distance)
+
+
+# test for multikolonarity
+  v <- VIF(X)
+# test for homooskedasticity
   bp <- bp_test(error, X)
-  slp <- Spread.level.plot(object)
+  slp <- Spread.level.plot(y_hat, inf.obs$studentized.residuals)
 
 
   return(list(qq,
          res_hist,
          bwp,
-         x_hist,
-         #cat('--------- Shapiro Wilke Test-----\n',swt.s),
-         cooks.dist(object), # the plot is plotted form inside the function (plot not saved in the variable
+         #x_hist,
+         swt$statistic,
+         cd.plot, # the plot is plotted form inside the function (plot not saved in the variable
+         inf.plot,
          v,
-         bp))
+         bp,
+         slp))
 
 
 }
