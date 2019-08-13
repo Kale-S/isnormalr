@@ -76,10 +76,14 @@ influence.observation <- function(mod){
   #X <- data.frame(mod$model)
   #y_hat <- predict(mod, newdata=X)
   #formula <- mod$call$formula
-  #e <- mod$residuals
+
+  # second case
+  X <- model.matrix(mod)
+  e <- mod$residuals
   n <- dim(X)[1]
   p <- dim(X)[2]
   s2 <- sum(e^2) / (n - p)
+
   # Define a Vector for the results
   #D <- rep(0, n)
 
@@ -91,9 +95,6 @@ influence.observation <- function(mod){
   #}
   #return(D)
 
-  # second case
-  X <- model.matrix(mod)
-  e <- mod$residuals
   # Calculate the projection matrix
   H <- X %*% solve(t(X) %*% X) %*% t(X)
   # Exctract the lavarage Values
@@ -171,12 +172,12 @@ plot.cd <- function(cd, p){
 #' @import
 #' ggplot2
 #' ggrepel
-influence.plot <- function(r, h, d){
+influence.plot <- function(t, h, d){ # r or t?
   n <- length(d)
   m2 <- 2 * mean(h)
   m3 <- 3 * mean(h)
   df <- data.frame('Hat.Values'=h,
-                   'Studentized.Residuals'=r,
+                   'Studentized.Residuals'=t,
                    'Cooks.Distance'=d)
   p <- ggplot(df, aes(x=Hat.Values, y=Studentized.Residuals,
                       size=Cooks.Distance)) +
@@ -206,7 +207,7 @@ influence.plot <- function(r, h, d){
   p <- p + ggrepel::geom_text_repel(aes(label=ifelse(h >= m2,
                                                      names,'')),
                  size=4) +
-    ggrepel::geom_text_repel(aes(label=ifelse(r >= 2 | r <= -2,
+    ggrepel::geom_text_repel(aes(label=ifelse(t >= 2 | t <= -2,
                                               names,'')),
                  size=4)
 
