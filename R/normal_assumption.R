@@ -88,50 +88,53 @@ qq_plot <- function(error){
 #'
 #' @return
 #' @export
-shapirio_test <- function(x){
-  n <- length(x)
-  x <- sort(x)  # sorting the data in ascending order
+Shapiro_Wilk.test <- function(x){
+  DNAME <- deparse(substitute(x))
+  # sort the X values
+  X <- sort(X[complete.cases((X))])
+  # define n
+  n <- length(X)
+
+  # define a hf thats calculets the
+  # inverse normal distriburtion for v
   hf <- function(i, n){
-    res <-qnorm((i - (3/8)) / (n + 1/4))
+    v <- (i - (3/8)) / (n + 0.25)
+    return(qnorm(v))
   }
-  m <- sapply(1:n, FUN=hf, n = n)
-  w <- rep(0, n)  # preallocating weights
+  # calculate the inversnormal
+  m <- sapply(seq(1, n), hf, n=n)
+  # calculate the sqrt sum of m
+  m2 <- t(m) %*% m
 
-  b <- 1/sqrt(t(m) %*% m) %*% m
-  u <- 1/sqrt(n)
+  # calculate u
+  u <- 1 / sqrt(n)
 
-  p1 <- c(-2.706056, 4.434685, -2.071190, -0.147981, 0.221157, b[n])
-  p2 <- c(-3.582633, 5.682633, -1.752461, -0.293762, 0.042981, b[n-1])
+  # calculate the wights for the test
+  a <- rep(0, times=n)
 
-  w[n] <- t(p1) %*% as.vector(c(rev(poly(u, degree=length(p1) - 1,
-                                         raw=TRUE)[1, ]), 1))
-  w[1] <- -w[n]
+  a[n] <- -2.706056 * u^5 + 4.434685 * u^4 - 2.071190 * u^3 -
+    0.147981 * u^2 + 0.221157 * u + m[n] * m2^-0.5
 
-  if(n == 3){
-    w[1] <- 0.707106781
-    w[n] <- -w[1]
+  a[n-1] <- -3.582633 * u^5 + 5.682633 * u^4 - 1.752461 * u^3 -
+    0.293762 * u^2 + 0.042981 * u + m[n-1] * m2^-0.5
+  a[1] <- -a[n]
+  a[2] <- -a[n-1]
+
+  ## calculate e
+  e <- (m2 - 2 * m[n]^2 - 2 * m[n-1]^2) / (1 - 2 * a[n]^2 - 2 * a[n-1]^2)
+
+  for(i in seq(3, n-2)){
+    a[i] <- m[i] / sqrt(e)
   }
-  if(n >= 6){
-    w[n - 1] <- t(p2) %*% as.vector(c(rev(poly(u, degree=length(p2) - 1,
-                                                 raw=TRUE)[1, ]), 1))
 
-    w[2] <- -w[n - 1]
+  # Calculate the W statsitc
+  W <- (t(a) %*% sort(X))^2 / sum((X - mean(X))^2)
 
-    ct <- 3
-    phi <- (t(m) %*% m - (2 * m[n]^2) - (2 * m[n-1]^2)) /
-            (1-(2*w[n]^2) - (2*w[n-1]^2))
-  }else{
-    ct = 2
-    phi <- (t(m) %*% m - 2*m[n]^2) / (1-2*w[n]^2)
-  }
-  if(n==3){
-    phi <- 1
-  }
-  w[seq(ct, n-ct+1)] <- m[seq(ct, n-ct+1)]/ rep(sqrt(phi), length(n - ct - 1))
-  W <- (t(w) %*% w)^2 / (t((x-mean(x))) %*% (x-mean(x)))
-
-  return(W)
-
+  RVAL <- list(statistic = c(w = W),
+               method = 'Shapiro-Wilk normality test',
+               data.name = DNAME)
+  class(RVAL) <- 'htest'
+  return(RVAL)
 }
 
 #' Struge Rule
