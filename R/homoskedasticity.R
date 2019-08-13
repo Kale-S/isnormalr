@@ -50,9 +50,32 @@ bp_test <- function(u, X){
 #' @return
 #' @export
 #' @import
-#' car
+#' ggolot2
 #' @examples
-Spread.level.plot <- function(model){
-  res <- car::spreadLevelPlot(model)
+Spread.level.plot <- function(fitted.value, t){
+  # generated two plots
+  # 1. Studentizied Residuals vs. Fitted Value
+  # 2. log(abs(Studentizied Residuals)) vs log(fitted Values)
 
+  df <- data.frame(y_hat = fitted.value,
+                   #log.y_hat = log10(fitted.value),
+                   rstudent = t,
+                   abs.rstudent = abs(t))
+
+  # Plot 1
+  p1 <- ggplot(df, aes(x=y_hat, y=t)) +
+          geom_point() +
+          geom_hline(yintercept = 0, lty=2, col = 'blue')
+
+  p2 <- ggplot(df, aes(x=y_hat, y = abs.rstudent)) +
+          geom_point() +
+          geom_smooth(method='lm',formula=y~x)
+
+  # Generate an s3 object
+  sl <- list('Spread.level' = p2,
+             'Student.Fitted' = p1)
+
+  class(sl) <- 'Spread Level'
+
+  return(sl)
 }
