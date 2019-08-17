@@ -34,7 +34,7 @@ is.normal <- function(object){
   #               'P-Value: ', toString(swt[2]))
 # test for outlier
   bwp <- box_plot_x(X)
-  #x_hist <- hist_x(X)
+  x_hist <- hist_x(X)
   inf.obs <- influence.observation(object)
 
   cd.plot <- isnormalr:::plot.cd(inf.obs$cooks.distance, p)
@@ -53,7 +53,7 @@ is.normal <- function(object){
   return(list(qq,
          res_hist,
          bwp,
-         #x_hist,
+         x_hist,
          swt$statistic,
          cd.plot, # the plot is plotted form inside the function (plot not saved in the variable
          inf.plot,
