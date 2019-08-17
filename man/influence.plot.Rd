@@ -4,7 +4,7 @@
 \alias{influence.plot}
 \title{Plots the influence of observation on the regression line}
 \usage{
-\method{influence}{plot}(r, h, d)
+\method{influence}{plot}(t, h, d)
 }
 \arguments{
 \item{lm}{linear model}
