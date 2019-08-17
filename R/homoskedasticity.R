@@ -7,7 +7,7 @@
 #' @export
 #' @examples
 bp_test <- function(u, X){
-
+  DNAME <- deparse(substitute(X))
   ## implementing the LM statistic ##
   u2 <- u^2  # squerd residuals
 
@@ -26,22 +26,25 @@ bp_test <- function(u, X){
 
   ## implementing the F statistic ##
   # Calculate the test statistic
-  F.s <- (r2 / k) / ((1 - r2) / n - k - 1)
+  #F.s <- (r2 / k) / ((1 - r2) / n - k - 1)
 
   # calculate the critical value
-  F.k <- qf(0.95, k, n - k - 1)
+  #F.k <- qf(0.95, k, n - k - 1)
 
-  ## generate the return S3 class ##
-  # definition of S3 class
-  bp <- list(LM.statistic = LM, LM.kritical.value = LM.k,
-            F.statistic = F.s, F.kritical.value = F.k)
-  class(bp) <- 'bp-Test'
+  pval <- 1 - pchisq(LM, df=k)
+  ## generate the return S3 htest class ##
+  RVAL <- list(statistic = c(LM = LM),
+               p.value = pval,
+               parameter = k,
+               method = "studentized Breusch-Pagan heteroskedasticity test",
+               data.name = DNAME)
+  class(RVAL) <- "htest"
 
 
-  return(bp)
-
-
+  return(RVAL)
 }
+
+
 
 #' Spread-Level Plot
 #'
@@ -50,7 +53,7 @@ bp_test <- function(u, X){
 #' @return
 #' @export
 #' @import
-#' ggolot2
+#' ggplot2
 #' @examples
 Spread.level.plot <- function(fitted.value, t){
   # generated two plots
@@ -65,11 +68,25 @@ Spread.level.plot <- function(fitted.value, t){
   # Plot 1
   p1 <- ggplot(df, aes(x=y_hat, y=t)) +
           geom_point() +
-          geom_hline(yintercept = 0, lty=2, col = 'blue')
+          geom_hline(yintercept = 0, lty=2, col = '#666666',
+                     size = 1) +
+          scale_x_continuous(name='Fitted Values') +
+          scale_y_continuous(name='Studentized Residuals')
+  # add nd title
+  p1 <- p1 +
+        ggtitle('Spread-Level Plot_Other')
 
   p2 <- ggplot(df, aes(x=y_hat, y = abs.rstudent)) +
           geom_point() +
-          geom_smooth(method='lm',formula=y~x)
+          geom_smooth(method='lm',formula=y~x, color='#666666') +
+    scale_x_continuous(name='Fitted Values') +
+    scale_y_continuous(name='Absolute Studentized Residuals') +
+    ggplot2::ggtitle('Spread-Level Plot')
+
+  #add the theme
+  p1 <- p1 + theme_isnormalr()
+
+  p2 <- p2 + theme_isnormalr()
 
   # Generate an s3 object
   sl <- list('Spread.level' = p2,
