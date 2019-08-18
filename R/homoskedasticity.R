@@ -1,11 +1,47 @@
 #' @title
 #' Breusch-Pagan Test
+#' @keywords
+#' htest
+#' @param u a vector with error terms
+#' @param X a dataframe with k parameter and n observations
 #'
-#' @param model
 #'
-#' @return kritical value
-#' @export
+#' @return
+#' A list with class htest cointaining the following components:
+#'
+#' statisic
+#'   the value of the statistic.
+#'
+#' p.value
+#'   the p-value of the test
+#'
+#' parameter
+#'   degrees of freedom.
+#'
+#' method
+#'   a character string indicating what type of test was performed.
+#'
+#' data.name
+#'   a character sting giving the name of the data.
+#'
+#' @references
+#' T.S. Breusch & A.R. Pagan (1979), A Simple Test for Heteroscedasticity and Random Coefficient Variation.
+#' Econometrica 47, 1287--1294
+#'
+#' R. Koenker (1981), A Note on Studentizing a Test for Heteroscedasticity. Journal of Econometrics 17, 107--112.
 #' @examples
+#'  \dontrun{
+#' ## generate a regressor
+#' X <- rep(c(1, 2), 50)
+#' ## generate homoskedastic errors
+#' err1 <- rnorm(100)
+#' ## generate heteroskedastic errors
+#' err2 <- rnorm(100, sd = x)
+#'
+#' # perform the Breusch-Pagan test
+#' bp_test(err1, X)
+#' bp_test(err2, X)
+#' }
 bp_test <- function(u, X){
   DNAME <- deparse(substitute(X))
   ## implementing the LM statistic ##
