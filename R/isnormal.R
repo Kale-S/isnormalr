@@ -50,16 +50,31 @@ is.normal <- function(object){
   slp <- Spread.level.plot(y_hat, inf.obs$studentized.residuals)
 
 
-  return(list(qq,
-         res_hist,
-         bwp,
-         x_hist,
-         swt$statistic,
-         cd.plot, # the plot is plotted form inside the function (plot not saved in the variable
-         inf.plot,
-         v,
-         bp,
-         slp))
-
-
+  res <- list(
+    Normality_Tests=list(
+      Shapiro.Wilk = swt
+      ),
+    Outlier=list(
+      Cooks.Distance = inf.obs$cooks.distance,
+      Hat.Values = inf.obs$leverage.value,
+      Studentized.Residuals = inf.obs$studentized.residuals,
+      Standardized.Residuals = inf.obs$standardized.residuals
+    ),
+    Multikolonarity = list(
+      VIF = v
+    ),
+    Homoskedasticity = list(
+      Breusch.Pagan = bp
+    ),
+    Plots = list(
+      QQ.Plot = qq,
+      Residual.Hist = res_hist,
+      Regressor.Hist = x_hist,
+      Box.Plot = res_hist,
+      Cooks.Distance.plot = cd.plot,
+      Bubble.Plot = inf.plot,
+      Spread.Level.Plot = slp
+    )
+  )
+  new('isnormalr', res)
 }
