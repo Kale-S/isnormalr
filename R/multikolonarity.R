@@ -5,7 +5,7 @@
 #'
 #' @return
 #' Returns the observations that VIF is larger then 2
-#' @Mexport
+#' @export
 VIF <- function(X){
 
   n <- dim(X)[1]
