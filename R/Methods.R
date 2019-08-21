@@ -3,6 +3,20 @@ setClass('isnormalr', representation('list'))
 
 # Show method
 setMethod('show', 'isnormalr', function(object){
+  # Normal assumption
+  gridExtra::grid.arrange(object$Plots$QQ.Plot,
+                          object$Plots$Residual.Hist, nrow=2)
+  # Outlier
+  gridExtra::grid.arrange(object$Plots$Box.Plot.X,
+              object$Plots$Regressor.Hist, nrow=2)
+  #print(object$Plots$Box.Plot.X)
+  #print(object$Plots$Regressor.Hist)
+  gridExtra::grid.arrange(object$Plots$Cooks.Distance.plot,
+                          object$Plots$Bubble.Plot, nrow=2)
+  #print(object$Plots$Cooks.Distance.plot)
+  #print(object$Plots$Bubble.Plot)
+  # Homoskedasticity
+  print(object$Plots$Spread.Level.Plot[1])
 
   cat('==========================================================================\n')
   cat('---------------- Summary table for the residual analysis -----------------\n')
@@ -37,12 +51,7 @@ setMethod('show', 'isnormalr', function(object){
   cat('--------------------------------------------------------------------------\n')
   cat('==========================================================================\n')
 
-  print(object$Plots$QQ.Plot)
-  print(object$Plots$Residual.Hist)
-  print(object$Plots$Regressor.Hist)
-  print(object$Plots$Box.Plot)
-  print(object$Plots$Cooks.Distance.plot)
-  print(object$Plots$Bubble.Plot)
+
 })
 
 
