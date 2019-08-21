@@ -69,25 +69,48 @@ resid_hist <- function(error){
 #' @export
 qq_plot <- function(error){
   n <- length(error)
-  mu <- mean(error)
-  sd <- sd(error)
+#  mu <- mean(error)
+#  sd <- sd(error)
 
-  # Compute n evenly spaced points on the interval (0, 1)
-  prob <- (1:n) / (n + 1)
+  # Compute n + 1 evenly spaced points on the interval (0, 1)
+  prob <- ppoints(n)
   # Calculate the theroetical quantiles
-  normal.quantiles <- qnorm(prob, mu, sd)
+  normal.quantiles <- qnorm(prob, mean = 0L, sd = 1L)
 
+  # calculation of the abline lobe an intecept
+  y <- quantile(error, c(0.25, 0.75))
+  x <- qnorm(c(0.25, 0.75))
+  slope <- diff(y) / diff(x)
+  intercept <- y[1L] - slope * x[1L]
+
+  # build a data.frame
   df <- data.frame(normal.quantiles = sort(normal.quantiles),
                    sample.quantiles = sort(error))
-## plot the results
-  qq <- ggplot2::ggplot(df, aes(x=normal.quantiles, y=sample.quantiles)) +
-          geom_point() +
-          geom_abline(slope=1, color="#666666", size=1.2)
+  names <- names(sort(error))
 
+
+## plot the results
+  qq <- ggplot2::ggplot(df, aes(x=normal.quantiles,
+                                y=sample.quantiles)) +
+          geom_point() +
+          ggrepel::geom_text_repel(aes(label=
+                                  ifelse(sample.quantiles >= 2,
+                                         names,'')),
+                                   size=3, color = 'red') +
+          geom_abline(intercept = intercept, slope = slope,
+                      color="#666666", size=1.2)
+
+
+  if(sum(df$sample.quantiles >= 2) >= 1){
+         qq <- qq + ggplot2::geom_point(data = df[df$sample.quantiles >= 2, ],
+                                        aes(x=normal.quantiles,
+                                            y=sample.quantiles),
+                                        colour = 'red')
+  }
   # add xlabel, ylabel and title
   qq <- qq +
     ggplot2::scale_x_continuous(name = 'Theoretical Quatiles') +
-    ggplot2::scale_y_continuous(name = 'Standardized residuals') +
+    ggplot2::scale_y_continuous(name = 'Studentiued residuals') +
     ggplot2::ggtitle('Normal Q-Q')
   # add the theme
   qq <- qq + theme_isnormalr()
@@ -176,7 +199,6 @@ jarque.bera <- function(X){
   DNAME <- deparse(substitute(X))
   n <- length(X)
   x_bar <- mean(X)
-
 
   # Test statsiti
   S <- (sum((X - x_bar)^3)/n) / (sum((X - x_bar)^2)/n)^(3/2)
@@ -286,3 +308,4 @@ cramerv_mises.test <- function(X){
 Square.root <- function(n){
   bw <- round(sqrt(n))
 }
+
