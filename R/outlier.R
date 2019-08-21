@@ -210,21 +210,39 @@ influence.plot <- function(t, h, d){ # r or t?
 
 
   # add vertical lines
-  ifelse(m3 <= max(h),
-         p <- p + geom_vline(xintercept=m3, lty=2) +
-           geom_vline(xintercept = m2, lty=2),
-         ifelse(m2 <= max(h),
-                p <- p + geom_vline(xintercept=m2, lty=2)))
+  if(m3 <= max(h)){
+    p <- p + geom_vline(xintercept=m3, lty=2) +
+      geom_vline(xintercept = m2, lty=2)
+  }else if(m2 <= max(h)){
+    p <- p + geom_vline(xintercept=m2, lty=2)
+  }
+  #ifelse(m3 <= max(h),
+  #       p <- p + geom_vline(xintercept=m3, lty=2) +
+  #         geom_vline(xintercept = m2, lty=2),
+  #       ifelse(m2 <= max(h),
+  #              p <- p + geom_vline(xintercept=m2, lty=2)))
   # add horizontal lines
-  ifelse(min(t) < 0 & max(t) > 0,
-         p <- p + geom_hline(yintercept = 0, lty=2))
-  ifelse(min(t) < -2 & max(t) >= 2,
-         p <- p + geom_hline(yintercept = 2, lty=2) +
-           geom_hline(yintercept = -2, lty=2),
-         ifelse(min(t) > -2 & max(t) >= 2,
-                p <- p + geom_hline(yintercept = 2, lty=2),
-                ifelse(min(t) <= -2 & max() <= 2,
-                       p <- p + geom_hline(yintercept = -2, lty=2))))
+  if(min(t) < 0 & max(t) > 0){
+    p <- p + geom_hline(yintercept = 0, lty=2)
+  }
+  if(min(t) < -2 & max(t) >= 2){
+    p <- p + geom_hline(yintercept = 2, lty=2) +
+      geom_hline(yintercept = -2, lty=2)
+  }else if(min(t) > -2 & max(t) >= 2){
+    p <- p + geom_hline(yintercept = 2, lty=2)
+  }else if(min(t) <= -2 & max(t) <= 2){
+    p <- p + geom_hline(yintercept = -2, lty=2)
+  }
+  #ifelse(min(t) < 0 & max(t) > 0,
+  #       p <- p + geom_hline(yintercept = 0, lty=2))
+  #ifelse(min(t) < -2 & max(t) >= 2,
+  #       p <- p + geom_hline(yintercept = 2, lty=2) +
+  #         geom_hline(yintercept = -2, lty=2),
+  #       ifelse(min(t) > -2 & max(t) >= 2,
+  #              p <- p + geom_hline(yintercept = 2, lty=2),
+  #              ifelse(min(t) <= -2 & max() <= 2,
+  #                     p <- p + geom_hline(yintercept = -2, lty=2)),
+  #              ''))
 
   # add the names of the influence observations
   names <- names(d)
