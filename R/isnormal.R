@@ -4,7 +4,8 @@
 #'
 #' @return
 #' @export
-#'
+#' @import
+#' gridExtra
 #' @examples
 is.normal <- function(object){
 
@@ -26,16 +27,20 @@ is.normal <- function(object){
   }else if(n > 5000){                           # Shapiro-Test
     message('Shapiro-Wilk statistic might be inaccurate due to large sample size ( > 5000)')
   }
+  inf.obs <- influence.observation(object)
 # test for normality
-  qq <- qq_plot(error)
+  qq <- qq_plot(inf.obs$standardized.residuals)
   res_hist <- resid_hist(error)
   swt <- Shapiro_Wilk.test(error)
+  jb <- jarque.bera(error)
+  ad <- anderson.darling.test(error)
+  cm <- cramerv_mises.test(error)
   #swt.s <- paste('Statistik: ',toString(swt[1]),
   #               'P-Value: ', toString(swt[2]))
 # test for outlier
   bwp <- box_plot_x(X)
   x_hist <- hist_x(X)
-  inf.obs <- influence.observation(object)
+
 
   cd.plot <- isnormalr:::plot.cd(inf.obs$cooks.distance, p)
   inf.plot <- influence.plot(inf.obs$standardized.residuals,
@@ -52,7 +57,10 @@ is.normal <- function(object){
 
   res <- list(
     Normality_Tests=list(
-      Shapiro.Wilk = swt
+      Shapiro.Wilk = swt,
+      Jarque.Bera = jb,
+      Anderson.Darling = ad,
+      cramer.v.mises = cm
       ),
     Outlier=list(
       Cooks.Distance = inf.obs$cooks.distance,
@@ -67,12 +75,15 @@ is.normal <- function(object){
       Breusch.Pagan = bp
     ),
     Plots = list(
+      # Normal assumptions
       QQ.Plot = qq,
       Residual.Hist = res_hist,
+      # Outlier
+      Box.Plot.X = bwp,
       Regressor.Hist = x_hist,
-      Box.Plot = res_hist,
       Cooks.Distance.plot = cd.plot,
       Bubble.Plot = inf.plot,
+      # Homoskedasticity
       Spread.Level.Plot = slp
     )
   )
