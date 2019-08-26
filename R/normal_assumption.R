@@ -92,20 +92,46 @@ qq_plot <- function(error){
 ## plot the results
   qq <- ggplot2::ggplot(df, aes(x=normal.quantiles,
                                 y=sample.quantiles)) +
-          geom_point() +
-          ggrepel::geom_text_repel(aes(label=
-                                  ifelse(sample.quantiles >= 2,
+        ggplot2::geom_point() +
+        # gray abline
+        ggplot2::geom_abline(intercept = intercept, slope = slope,
+                             color="#666666", size=1.2)
+
+  # Plot the extreme values
+  extreme <- sum(df$sample.quantiles >= 2 | df$sample.quantiles <= -2)
+
+  if(extreme >= 1 & extreme <= 7){
+          # red text
+    qq <- qq + ggrepel::geom_text_repel(aes(label=
+                                  ifelse(sample.quantiles >= 2 |
+                                         sample.quantiles <= -2,
                                          names,'')),
                                    size=3, color = 'red') +
-          geom_abline(intercept = intercept, slope = slope,
-                      color="#666666", size=1.2)
+         # red Poins
+         ggplot2::geom_point(data = df[df$sample.quantiles >= 2, ],
+                         aes(x=normal.quantiles,
+                             y=sample.quantiles),
+                         colour = 'red') +
 
+          ggplot2::geom_point(data = df[df$sample.quantile <= -2, ],
+                         aes(x=normal.quantiles,
+                             y=sample.quantiles),
+                         colour = 'red')
 
-  if(sum(df$sample.quantiles >= 2) >= 1){
-         qq <- qq + ggplot2::geom_point(data = df[df$sample.quantiles >= 2, ],
-                                        aes(x=normal.quantiles,
-                                            y=sample.quantiles),
-                                        colour = 'red')
+  }else if(extreme >= 7){ # default method if there are to many observations
+     which.rstud <- order(abs(df$sample.quantiles), decreasing = TRUE)[1:2]
+     all.bool <- rep(FALSE, times = n)
+     all.bool[which.rstud] <- TRUE
+     # add the Name and the colur
+     qq <- qq + ggrepel::geom_text_repel(aes(label=
+                                               ifelse(all.bool,
+                                                      names, "")),
+                                         size = 3, color = 'red') +
+     # add the color
+                ggplot2::geom_point(data = df[all.bool,],
+                                    aes(x=normal.quantiles,
+                                        y=sample.quantiles),
+                                    colour = 'red')
   }
   # add xlabel, ylabel and title
   qq <- qq +
