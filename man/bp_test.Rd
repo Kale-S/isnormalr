@@ -7,11 +7,49 @@
 bp_test(u, X)
 }
 \arguments{
-\item{model}{}
+\item{u}{a vector with error terms}
+
+\item{X}{a dataframe with k parameter and n observations}
 }
 \value{
-kritical value
+A list with class htest cointaining the following components:
+
+statisic
+  the value of the statistic.
+
+p.value
+  the p-value of the test
+
+parameter
+  degrees of freedom.
+
+method
+  a character string indicating what type of test was performed.
+
+data.name
+  a character sting giving the name of the data.
 }
 \description{
 Breusch-Pagan Test
 }
+\examples{
+ \dontrun{
+## generate a regressor
+X <- rep(c(1, 2), 50)
+## generate homoskedastic errors
+err1 <- rnorm(100)
+## generate heteroskedastic errors
+err2 <- rnorm(100, sd = x)
+
+# perform the Breusch-Pagan test
+bp_test(err1, X)
+bp_test(err2, X)
+}
+}
+\references{
+T.S. Breusch & A.R. Pagan (1979), A Simple Test for Heteroscedasticity and Random Coefficient Variation.
+Econometrica 47, 1287--1294
+
+R. Koenker (1981), A Note on Studentizing a Test for Heteroscedasticity. Journal of Econometrics 17, 107--112.
+}
+\keyword{htest}
