@@ -14,13 +14,13 @@ is.normal <- function(object){
     print('Some error later')
   }
   #------------- inizelizing of variable
-  X <- object$model[, -1]  # without intercept
+  X <- model.matrix(object)  # without intercept
   y <- object$model[, 1]
   error <- resid(object)
   y_hat <- fitted(object)
   n <- dim(X)[1]
   p <- dim(X)[2]
-
+  k <- p - 1
 
   if(is.na(n) || n < 3L){
     stop('sample size must be larger then 3')  # nessercary for the
@@ -42,7 +42,7 @@ is.normal <- function(object){
   x_hist <- hist_x(X)
 
 
-  cd.plot <- isnormalr:::plot.cd(inf.obs$cooks.distance, p)
+  cd.plot <- isnormalr:::plot.cd(inf.obs$cooks.distance, k)
   inf.plot <- influence.plot(inf.obs$standardized.residuals,
                              inf.obs$leverage.value,
                              inf.obs$cooks.distance)
@@ -50,6 +50,7 @@ is.normal <- function(object){
 
 # test for multikolonarity
   v <- VIF(X)
+
 # test for homooskedasticity
   bp <- bp_test(error, X)
   slp <- Spread.level.plot(y_hat, inf.obs$studentized.residuals)
