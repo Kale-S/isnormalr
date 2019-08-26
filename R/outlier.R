@@ -2,15 +2,49 @@
 #' Box-Whisker-Plot
 #'
 #' @description
-#' Creat a Box-Whisker-Plot for each variable in X
+#' A Box-Whisker-Plot for each numeric column in the design matrix
 #'
-#' @param X design matrix
+#'
+#' @usage \code{isnormalr:::box_plot_x(X)}
+#'
+#' @details
+#' The box plot is a diagram that is used to graphically represent
+#' the distribution of an at least ordinal scaled characteristic.
+#' It combines different robust scattering and position measures in
+#' one representation.  A box plot is intended to give a quick
+#' impression of the area in which the data is located and how it is
+#' distributed over this area. Therefore, all values of the so-called
+#' five-point summary, i.e. the median, the two quartiles and the two
+#' extreme values, are displayed. A box whisker plot, also called a
+#' box plot, is a summary of a data set in five points. These five
+#' points are the minimum, the lower quartile, the median, the upper
+#' quartile and the maximum.
+#'
+#'
+#' @param X design matrix (nxk)
+#'
 #'
 #' @return
+#'
+#'
+#' @references
+#' Franz Kronthaler: Statistik angewandt.
+#' Datenanalyse ist (k)eine Kunst.
+#'
+#' Springer-Verlag, Berlin Heidelberg 2014, ISBN 978-3-642-53739-4,
+#' S. 38.
+#'
+#' @example
+#' \dontrun{
+#' Z <- matrix(rnorm(100), ncol = 10)
+#' isnormalr:::box_plot_x(Z)
+#'
+#' Y <- matrix(rexp(100), ncol = 10)
+#' isnormalr:::box_plot_x(Y)
+#'
+#' }
 #' @import
 #' ggplot2
-#'
-#' @export
 box_plot_x <- function(X){
 
   if(colnames(X)[1] == '(Intercept)'){
@@ -56,19 +90,59 @@ box_plot_x <- function(X){
 }
 
 #' @title
-#' Histogram for each variable in design matrix
+#' Histograms
+#'
+#' @description
+#' A histogram for each numeric column in the design matrix
+#'
+#' @keywords
+#'
+#' @usage
+#' \code{isnormalr:::hist_x(X)}
+#'
+#' @details
+#' A histogram is a graphical representation of the frequency
+#' distribution of cardinally scaled characteristics. It requires the
+#' division of the data into classes (bins), which can have a
+#' constant or variable width. Directly adjacent rectangles of the
+#' width of the respective class are drawn, whose areas represent the
+#' (relative or absolute) class frequencies (Rönz 1994, S. 147;
+#' Wassermann 2005, S. 127; Arens et al. 2008, S. 1226). The height
+#' of each rectangle then represents the (relative or absolute)
+#' frequency density, i.e. the (relative or absolute) frequency
+#' divided by the width of the corresponding class (Freedman et al.
+#' 1998).
+#'
+#' Further information about histograms can be found in the
+#' documentation \code{\link{hist}}
 #'
 #' @inheritParams box_plot_x
 #'
-#' @return
-#' Returns a histogramm for each variablen in the design matrix
 #'
-#' @export
+#'
+#' @return
+#'
+#' @references
+#' Bernd Rönz, Hans G. Strohe: Lexikon Statistik. Gabler Verlag,
+#' 1994, S. 157
+#'
+#' Larry Wasserman: All of Nonparametric Statistics. Springer,
+#' 2005, S. 127
+#'
+#' Arens et al.: Mathematik. Spektrum Akademischer Verlag,
+#' 2008, S. 1226
+#'
+#' D. Freedman, R. Pisani, R. Purves: Statistics. Third edition.
+#' W.W.Norton, 1998.
+#'
+#' @examples
+#' \dontrun{
+#'
+#' }
 #'
 #' @import
 #' ggplot2
 #' tidyr
-#' @examples
 hist_x <- function(X){
 
   if(colnames(X)[1] == '(Intercept)'){

@@ -5,7 +5,7 @@
 #' This function genertates a Histogramm of the residuals with a normal Density
 #'
 #'
-#' @param df Dataframe
+#' @param X a numeric vector of data values
 #'
 #' @return Plot a histogram of the residuals with a normal density
 #' @export
@@ -21,24 +21,24 @@
 #' y <- X %*% b + e
 #' resid_hist(lm(y ~ X))
 
-resid_hist <- function(error){
+resid_hist <- function(X){
   # safe the number of obs. for the calculation of the bins
-  n <- length(error)
+  n <- length(X)
   bins <- isnormalr:::Square.root(n)
   # safe the input as data.frame
-  error <- data.frame(error)
+  X <- data.frame(X)
   # safe the mean of the residuals
-  error.mean <-  colMeans(error)
+  X.mean <-  colMeans(X)
   # safe the standard diviation of the residals
-  error.sd <- apply(error, 2, sd, na.rm=TRUE)
+  X.sd <- apply(X, 2, sd, na.rm=TRUE)
 
   # ------------- generate plot
   x.grid <- seq(-5, 5, length.out=10000)
   dens <- dnorm(x.grid, 0, 1)
-  df <- with(error, data.frame(x=x.grid, y=dens))
+  df <- with(X, data.frame(x=x.grid, y=dens))
   #bins <- isnormalr::sturge_rule(n)
 
-  h <- ggplot2::ggplot(error, aes(x = error)) +
+  h <- ggplot2::ggplot(X, aes(x = X)) +
     ggplot2::geom_histogram(aes(y=..density..),
                                 col=I('black'),
                           alpha=0.6, bins=bins)
@@ -59,16 +59,48 @@ resid_hist <- function(error){
 #' @title
 #' QQ-Plot of the residuals
 #'
+#' @description
+#' Plots  studentized residuals from a linear model, against
+#' theoretical quantiles of a comparison distribution.
+#'
+#' @keywords
+#' \link{distribution}
+#' \link{regression}
+#'
+#' @usage
+#' \code{isnormalr:::qq_plot(X)}
+#'
+#' @details
+#' Draws theoretical quantile-comparison plots for variables and for
+#' studentized residuals from a linear model. A comparison line is
+#' drawn on the plot either through the quartiles of the two
+#' distributions, or by robust regression.
+#'
 #' @inheritParams resid_hist
 #'
 #' @return
-#' This function returns a QQ-plot
+#' An QQ-Plot
+#'
+#' @references
+#' Fox, J. 2016 Applied Regression Analysis and Generalized Linear Models, Third Edition. Sage.
+#' Fox, J. and Weisberg, S. 2019 An R Companion to Applied Regression, Third Edition, Sage.
+#' Atkinson, A. C. 1985 Plots, Transformations, and Regression. Oxford.
+#'
+#' @example
+#' \dontrun{
+#' z <- rnorm(100)
+#' isnormalr:::qq_plot(z)
+#'
+#' y <- rexp(100)
+#' isnormalr:::qq_plot(y)
+#'
+#' }
+#'
 #' @import
 #' ggplot2
 #'
-#' @export
-qq_plot <- function(error){
-  n <- length(error)
+qq_plot <- function(X){
+  n <- length(X)
 #  mu <- mean(error)
 #  sd <- sd(error)
 
@@ -78,15 +110,15 @@ qq_plot <- function(error){
   normal.quantiles <- qnorm(prob, mean = 0L, sd = 1L)
 
   # calculation of the abline lobe an intecept
-  y <- quantile(error, c(0.25, 0.75))
+  y <- quantile(X, c(0.25, 0.75))
   x <- qnorm(c(0.25, 0.75))
   slope <- diff(y) / diff(x)
   intercept <- y[1L] - slope * x[1L]
 
   # build a data.frame
   df <- data.frame(normal.quantiles = sort(normal.quantiles),
-                   sample.quantiles = sort(error))
-  names <- names(sort(error))
+                   sample.quantiles = sort(X))
+  names <- names(sort(X))
 
 
 ## plot the results
@@ -144,15 +176,67 @@ qq_plot <- function(error){
 }
 
 #' @title
-#' Shaprio Test
+#' Shapiro-Wilk Normality Test
 #'
 #' @description
-#' einfügen
+#' Performs the Shapiro-Wilk test for normality.
 #'
-#' @inheritParams resid_hist
+#' @keywords
+#' \link{htest}
+#'
+#' @usage
+#' \code{isnormalr:::Shapiro_Wilk.test(X)}
+#'
+#' @param
+#' a numeric vector of data values, the number of which must be
+#' between 3 and 5000. Missing values are allowed.
+#'
+#' @details
+#' The Shapiro-Wilk test is a statistical significance test that
+#' tests the hypothesis that the underlying population of a sample
+#' is normally distributed. The test was developed by Samuel Shapiro
+#' and Martin Wilk and first presented in 1965.
+#' The null hypothesis H0 assumes that there is a normal distribution
+#' of the population. On the other hand, the alternative hypothesis
+#' H1 that there is no normal distribution. If the value of the test
+#' statistic W is greater than the critical value Wcritical, the null
+#' hypothesis is not rejected, and a normal distribution is assumed.
+#' Alternatively, if the p-value of the test is determined, the null
+#' hypothesis is usually not rejected if the p-value is greater than
+#' the specified significance level alpha.
+#' The test can be used to check univariate samples with 3 to 5000
+#' observations. In addition to other known tests for normal
+#' distribution, such as the Kolmogorov-Smirnow test or the
+#' Chi-square test, the Shapiro-Wilk test is distinguished by its
+#' comparatively high-test strength in numerous test situations,
+#' especially when testing smaller samples with n<50.
+#'
+#' @references
+#' Sam S. Shapiro, Martin Bradbury Wilk: An analysis of variance
+#' test for normality (for complete samples), Biometrika, 52(3/4),
+#' 1965, pp. 591–611, doi:10.1093/biomet/52.3-4.591, JSTOR 2333709.
+#'
+#' Patrick Royston (1982). An extension of Shapiro and Wilk's W test
+#' for normality to large samples. Applied Statistics, 31, 115–124.
+#' doi: 10.2307/2347973.
+#'
+#' Patrick Royston (1982). Algorithm AS 181: The W test for Normality.
+#' Applied Statistics, 31, 176–180. doi: 10.2307/2347986.
+#'
+#' Patrick Royston (1995). Remark AS R94: A remark on Algorithm AS 181:
+#' The W test for normality. Applied Statistics, 44, 547–551.
+#' doi: 10.2307/2986146.
+#'
 #'
 #' @return
-#' @export
+#' \dontrun{
+#' z <- rnorm(100)
+#' isnormalr:::Shapiro_Wilk.test(z)
+#'
+#' y <- rexp(100)
+#' isnormalr:::Shapiro_Wilk.test(y)
+#'
+#' }
 Shapiro_Wilk.test <- function(X){
   DNAME <- deparse(substitute(X))
   # sort the X values

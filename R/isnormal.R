@@ -8,7 +8,6 @@
 #' gridExtra
 #' @examples
 is.normal <- function(object){
-
   # test if the input variable is a list
   if(typeof(object) != 'list'){
     print('Some error later')
