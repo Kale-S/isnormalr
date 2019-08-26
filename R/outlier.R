@@ -12,13 +12,19 @@
 #'
 #' @export
 box_plot_x <- function(X){
+
+  if(colnames(X)[1] == '(Intercept)'){
+    X <- X[, -1]
+
+  }
+  X <- data.frame(X)
   n <- dim(X)[1]
   k <- dim(X)[2]
 
   # only use numeric and non factor variable
-  isfactor <- apply(X, 2, is.factor)
-  isnumeric <- apply(X, 2, is.numeric)
-  filter <- isnumeric == !isfactor
+  isfactor <- sapply(X, is.factor)
+  isnumeric <- sapply(X, is.numeric)
+  filter <- isnumeric | !isfactor
 
   # apply the filter on X
   X <- X[, filter]
@@ -64,6 +70,11 @@ box_plot_x <- function(X){
 #' tidyr
 #' @examples
 hist_x <- function(X){
+
+  if(colnames(X)[1] == '(Intercept)'){
+    X <- X[, -1]
+  }
+  X <- data.frame(X)
   n <- dim(X)[1]
   k <- dim(X)[2]
   bins <- isnormalr:::Square.root(n)
@@ -203,6 +214,8 @@ influence.plot <- function(t, h, d){ # r or t?
   df <- data.frame('Hat.Values'=h,
                    'Studentized.Residuals'=t,
                    'Cooks.Distance'=d)
+  # scale of the bubbels
+  scale <- 10 / max(df$Cooks.Distance)
   p <- ggplot(df, aes(x=Hat.Values, y=Studentized.Residuals,
                       size=Cooks.Distance)) +
     geom_point(shape=1) +  # make rings
@@ -246,11 +259,24 @@ influence.plot <- function(t, h, d){ # r or t?
 
   # add the names of the influence observations
   names <- names(d)
-  p <- p + ggrepel::geom_text_repel(aes(label=ifelse(h >= m2,
+  if(sum(h >= m2 | t >= 2 | t<= -2) < 10){
+     p <- p + ggrepel::geom_text_repel(aes(label=ifelse(h >= m2,
                                                      names,'')),
                size=4) +
-    ggrepel::geom_text_repel(aes(label=ifelse(t >= 2 | t <= -2,
+              ggrepel::geom_text_repel(aes(label=
+                                             ifelse(t >= 2 | t <= -2,
                                               names,'')), size=4)
+  }else{ #default method if many observations
+    all.bool <- rep(FALSE, times = n)
+    hatval <- order(df$Hat.Values, decreasing = TRUE)[1:2]
+    rstud <- order(abs(df$Studentized.Residuals), decreasing = TRUE)[1:2]
+    cook <- order(df$Cooks.Distance, decreasing = TRUE)[1:2]
+    all <- union(rstud, union(hatval, cook))
+    all.bool[all] <- TRUE
+    p <- p + ggrepel::geom_text_repel(aes(label=
+                                        ifelse(all.bool,
+                                               names, "")), size = 4)
+  }
 
   # add ylab, ylab and title
   p <- p + scale_x_continuous(name = 'Leverage') +
@@ -278,20 +304,28 @@ influence.plot <- function(t, h, d){ # r or t?
                        fill = 'red', alpha = 0.003) +
     ggplot2::geom_rect(aes(xmin = m2 + 0.0001, xmax = Inf,
                            ymin = -Inf, ymax = -2.0001),
-                       fill = 'red', alpha = 0.003) +
-    # add text
-    ggplot2::annotate('text', x = 0.1, y = 0, label = 'Low residuals\nLow leverage',
-                      color = 'deepskyblue1') +
-    ggplot2::annotate('text', label = 'Low leverage\nHigh residuals',
-                      x = 0.1, y = 2.2, color = 'orange') +
-    ggplot2::annotate('text', label = 'Low leverage\nHigh residuals',
-                      x = 0.1, y = -2.2, color = 'orange') +
-    ggplot2::annotate('text', label = 'Low residuals\nHigh leverage',
-                      x = m2 + 0.03, y = 0, color = 'orange') +
-    ggplot2::annotate('text', label = 'High residuals\nHigh leverage',
-                      x = m2 + 0.03, y = 2.2, color = 'red') +
-    ggplot2::annotate('text', label = 'High residuals\nHigh leverage',
-                      x = m2 + 0.03, y = -2.2, color = 'red')
+                       fill = 'red', alpha = 0.003) #+
+    # add legend
+  p <- p + scale_fill_manual(values = c('deepskyblue1',
+                                        'orange',
+                                        'red'),
+                             labels =
+                               c('Low residuals and\nLow leverage',
+                                 'High residuals or\nHigh leverage',
+                                 'High residuals and\nHigh leverage'))
+  p <- p + theme(legend.position = 'bottom')
+    #ggplot2::annotate('text', x = 0.1, y = 0, label = 'Low residuals\nLow leverage',
+    #                  color = 'deepskyblue1') +
+    #ggplot2::annotate('text', label = 'Low leverage\nHigh residuals',
+    #                  x = 0.1, y = 2.2, color = 'orange') +
+    #ggplot2::annotate('text', label = 'Low leverage\nHigh residuals',
+    #                  x = 0.1, y = -2.2, color = 'orange') +
+    #ggplot2::annotate('text', label = 'Low residuals\nHigh leverage',
+    #                  x = m2 + 0.03, y = 0, color = 'orange') +
+    #ggplot2::annotate('text', label = 'High residuals\nHigh leverage',
+    #                  x = m2 + 0.03, y = 2.2, color = 'red') +
+    #ggplot2::annotate('text', label = 'High residuals\nHigh leverage',
+    #                  x = m2 + 0.03, y = -2.2, color = 'red')
 
 
   return(p)
