@@ -19,8 +19,8 @@ is.normal <- function(object){
   error <- resid(object)
   y_hat <- fitted(object)
   n <- dim(X)[1]
-  p <- dim(X)[2]
-  k <- p - 1
+  k <- dim(X)[2]
+  p <- k - 1
 
   if(is.na(n) || n < 3L){
     stop('sample size must be larger then 3')  # nessercary for the
@@ -42,7 +42,7 @@ is.normal <- function(object){
   x_hist <- hist_x(X)
 
 
-  cd.plot <- isnormalr:::plot.cd(inf.obs$cooks.distance, k)
+  cd.plot <- isnormalr:::plot.cd(inf.obs$cooks.distance, p)
   inf.plot <- influence.plot(inf.obs$standardized.residuals,
                              inf.obs$leverage.value,
                              inf.obs$cooks.distance)
