@@ -18,6 +18,7 @@ setMethod('show', 'isnormalr', function(object){
   # Homoskedasticity
   print(object$Plots$Spread.Level.Plot[1])
 
+
   cat('==========================================================================\n')
   cat('---------------- Summary table for the residual analysis -----------------\n')
   cat('==========================================================================\n')
@@ -33,10 +34,11 @@ setMethod('show', 'isnormalr', function(object){
 
   cat('\n\n\nMultikolonarity\n')
   cat(' ', 'Variance Inflation Factor\n')
-  cat(ifelse(sum(object$Multikolonarity$VIF >= 2) >= 1,
-      '\n  There are VIF that are larger then 2, that is an indicator \n  for multikolonarity in the data',
-      '\n  There is no VIF > 2, that is an indicator for \nno multikolonarity in the data'))
-
+  cat(ifelse(is.character(object$Multikolonarity$VIF),
+             object$Mulitkolonarity$VIF,
+             ifelse(sum(object$Multikolonarity$VIF >= 2) >= 1,
+                '\n  There are VIF that are larger then 2, that is an indicator \n  for multikolonarity in the data',
+                '\n  There is no VIF > 2, that is an indicator for \n  no multikolonarity in the data')))
   cat('\n\n\nMultikolonarity\n')
   cat(' ', object$Homoskedasticity$Breusch.Pagan$method, '\n')
   cat('  \n   statistics\t degrees \t p.value\t reject H0?\n')
