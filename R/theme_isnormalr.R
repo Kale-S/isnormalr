@@ -2,7 +2,7 @@ theme_isnormalr <- function(){
   ltgray <- "#cccccc"
   dkgray <- "#757575"
   dkgray2 <- "#666666"
-  theme_minimal(base_size = 12, base_family = "Bookman") +
+  theme_minimal(base_size = 12) +
     theme(
       rect = element_rect(colour = "black", fill = "white"),
       line = element_line(colour = "black"), text = element_text(colour = dkgray),
