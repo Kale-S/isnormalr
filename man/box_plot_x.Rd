@@ -4,11 +4,44 @@
 \alias{box_plot_x}
 \title{Box-Whisker-Plot}
 \usage{
-box_plot_x(X)
+\code{isnormalr:::box_plot_x(X)}
 }
 \arguments{
-\item{X}{design matrix}
+\item{X}{design matrix (nxk)}
+}
+\value{
+
 }
 \description{
-Creat a Box-Whisker-Plot for each variable in X
+A Box-Whisker-Plot for each numeric column in the design matrix
+}
+\details{
+The box plot is a diagram that is used to graphically represent
+the distribution of an at least ordinal scaled characteristic.
+It combines different robust scattering and position measures in
+one representation.  A box plot is intended to give a quick
+impression of the area in which the data is located and how it is
+distributed over this area. Therefore, all values of the so-called
+five-point summary, i.e. the median, the two quartiles and the two
+extreme values, are displayed. A box whisker plot, also called a
+box plot, is a summary of a data set in five points. These five
+points are the minimum, the lower quartile, the median, the upper
+quartile and the maximum.
+}
+\examples{
+\dontrun{
+Z <- matrix(rnorm(100), ncol = 10)
+isnormalr:::box_plot_x(Z)
+
+Y <- matrix(rexp(100), ncol = 10)
+isnormalr:::box_plot_x(Y)
+}
+
+}
+\references{
+Franz Kronthaler: Statistik angewandt.
+Datenanalyse ist (k)eine Kunst.
+
+Springer-Verlag, Berlin Heidelberg 2014, ISBN 978-3-642-53739-4,
+S. 38.
 }

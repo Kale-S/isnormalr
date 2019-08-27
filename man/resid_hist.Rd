@@ -4,10 +4,10 @@
 \alias{resid_hist}
 \title{Histogramm of the residuals}
 \usage{
-resid_hist(error)
+resid_hist(X)
 }
 \arguments{
-\item{df}{Dataframe}
+\item{X}{a numeric vector of data values}
 }
 \value{
 Plot a histogram of the residuals with a normal density

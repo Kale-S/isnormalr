@@ -30,7 +30,13 @@ data.name
   a character sting giving the name of the data.
 }
 \description{
-Breusch-Pagan Test
+Calculate a Breusch-Pegan Test for homoscedasticity
+}
+\details{
+The Breusch Pagan Test and its special case, the White-Test, are
+statistical tests to test heteroskedasticity. In particular, they
+are used to verify the assumption of homoskeletal elasticity in
+regression analysis.
 }
 \examples{
  \dontrun{
@@ -52,4 +58,3 @@ Econometrica 47, 1287--1294
 
 R. Koenker (1981), A Note on Studentizing a Test for Heteroscedasticity. Journal of Econometrics 17, 107--112.
 }
-\keyword{htest}

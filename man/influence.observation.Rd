@@ -2,16 +2,36 @@
 % Please edit documentation in R/outlier.R
 \name{influence.observation}
 \alias{influence.observation}
-\title{Plots the cooks distance}
+\title{Influence Observation}
 \usage{
-\method{influence}{observation}(mod)
+\code{isnormalr:::influence.observation(object)}
 }
 \arguments{
 \item{lm}{a lm model}
 }
 \value{
-A plot of the cooks distance
+
 }
 \description{
-Plots the cooks distance
+This function is a suite of functions that can be used to compute
+some of the regression (leve-one-out deletion) diagnostics for a
+linear models discussed in Belsley, Kuh and Welsch (1980),
+Cook and Weisberg (1982)
+}
+\details{
+def of Standardized residuals
+def of Studentized residuals
+deg of Hat_Values / Lavarage Values
+def of Cooks distance
+}
+\references{
+Cook, R. D. and Weisberg, S. (1984) Residuals and Influence in
+Regression.
+
+Wiley. Fox, J. (1997) Applied Regression, Linear Models, and
+Related Methods.
+
+Sage. Williams, D. A. (1987) Generalized linear model diagnostics
+using the deviance and single case deletions. Applied Statistics
+36, 181--191.
 }

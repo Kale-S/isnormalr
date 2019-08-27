@@ -8,10 +8,26 @@
 }
 \arguments{
 \item{cd}{Cook's distance}
+
+\item{p}{number of coefficents p = k - 1}
 }
 \value{
 Barplot
 }
 \description{
 Visualisation of the cook's distances
+}
+\examples{
+
+}
+\references{
+Cook, R. D. and Weisberg, S. (1984) Residuals and Influence in
+Regression.
+
+Wiley. Fox, J. (1997) Applied Regression, Linear Models, and
+Related Methods.
+
+Sage. Williams, D. A. (1987) Generalized linear model diagnostics
+using the deviance and single case deletions. Applied Statistics
+36, 181--191.
 }

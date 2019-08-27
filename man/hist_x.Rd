@@ -2,16 +2,52 @@
 % Please edit documentation in R/outlier.R
 \name{hist_x}
 \alias{hist_x}
-\title{Histogram for each variable in design matrix}
+\title{Histograms}
 \usage{
-hist_x(X)
+\code{isnormalr:::hist_x(X)}
 }
 \arguments{
-\item{X}{design matrix}
+\item{X}{design matrix (nxk)}
 }
 \value{
-Returns a histogramm for each variablen in the design matrix
+
 }
 \description{
-Histogram for each variable in design matrix
+A histogram for each numeric column in the design matrix
 }
+\details{
+A histogram is a graphical representation of the frequency
+distribution of cardinally scaled characteristics. It requires the
+division of the data into classes (bins), which can have a
+constant or variable width. Directly adjacent rectangles of the
+width of the respective class are drawn, whose areas represent the
+(relative or absolute) class frequencies (Rönz 1994, S. 147;
+Wassermann 2005, S. 127; Arens et al. 2008, S. 1226). The height
+of each rectangle then represents the (relative or absolute)
+frequency density, i.e. the (relative or absolute) frequency
+divided by the width of the corresponding class (Freedman et al.
+1998).
+
+Further information about histograms can be found in the
+documentation \code{\link{hist}}
+}
+\examples{
+\dontrun{
+
+}
+
+}
+\references{
+Bernd Rönz, Hans G. Strohe: Lexikon Statistik. Gabler Verlag,
+1994, S. 157
+
+Larry Wasserman: All of Nonparametric Statistics. Springer,
+2005, S. 127
+
+Arens et al.: Mathematik. Spektrum Akademischer Verlag,
+2008, S. 1226
+
+D. Freedman, R. Pisani, R. Purves: Statistics. Third edition.
+W.W.Norton, 1998.
+}
+\keyword{}

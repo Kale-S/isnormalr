@@ -4,14 +4,23 @@
 \alias{influence.plot}
 \title{Plots the influence of observation on the regression line}
 \usage{
-\method{influence}{plot}(t, h, d)
+\code{isnormalr:::influence.plot(t, h, d)}
 }
 \arguments{
-\item{lm}{linear model}
+\item{t}{numeric vector of studentized residuals}
+
+\item{h}{numeric vector of hat values}
+
+\item{d}{numeric vector of cook distance values}
 }
 \value{
 A plot
 }
 \description{
-Plots the influence of observation on the regression line
+
+
+
+}
+\references{
+
 }

@@ -2,10 +2,60 @@
 % Please edit documentation in R/normal_assumption.R
 \name{Shapiro_Wilk.test}
 \alias{Shapiro_Wilk.test}
-\title{Shaprio Test}
+\title{Shapiro-Wilk Normality Test}
 \usage{
-Shapiro_Wilk.test(X)
+\code{isnormalr:::Shapiro_Wilk.test(X)}
+}
+\arguments{
+\item{a}{numeric vector of data values, the number of which must be
+between 3 and 5000. Missing values are allowed.}
 }
 \description{
-einfügen
+Performs the Shapiro-Wilk test for normality.
 }
+\details{
+The Shapiro-Wilk test is a statistical significance test that
+tests the hypothesis that the underlying population of a sample
+is normally distributed. The test was developed by Samuel Shapiro
+and Martin Wilk and first presented in 1965.
+The null hypothesis H0 assumes that there is a normal distribution
+of the population. On the other hand, the alternative hypothesis
+H1 that there is no normal distribution. If the value of the test
+statistic W is greater than the critical value Wcritical, the null
+hypothesis is not rejected, and a normal distribution is assumed.
+Alternatively, if the p-value of the test is determined, the null
+hypothesis is usually not rejected if the p-value is greater than
+the specified significance level alpha.
+The test can be used to check univariate samples with 3 to 5000
+observations. In addition to other known tests for normal
+distribution, such as the Kolmogorov-Smirnow test or the
+Chi-square test, the Shapiro-Wilk test is distinguished by its
+comparatively high-test strength in numerous test situations,
+especially when testing smaller samples with n<50.
+}
+\examples{
+\dontrun{
+z <- rnorm(100)
+isnormalr:::Shapiro_Wilk.test(z)
+
+y <- rexp(100)
+isnormalr:::Shapiro_Wilk.test(y)
+}
+}
+\references{
+Sam S. Shapiro, Martin Bradbury Wilk: An analysis of variance
+test for normality (for complete samples), Biometrika, 52(3/4),
+1965, pp. 591–611, doi:10.1093/biomet/52.3-4.591, JSTOR 2333709.
+
+Patrick Royston (1982). An extension of Shapiro and Wilk's W test
+for normality to large samples. Applied Statistics, 31, 115–124.
+doi: 10.2307/2347973.
+
+Patrick Royston (1982). Algorithm AS 181: The W test for Normality.
+Applied Statistics, 31, 176–180. doi: 10.2307/2347986.
+
+Patrick Royston (1995). Remark AS R94: A remark on Algorithm AS 181:
+The W test for normality. Applied Statistics, 44, 547–551.
+doi: 10.2307/2986146.
+}
+\keyword{\link{htest}}

@@ -4,11 +4,39 @@
 \alias{qq_plot}
 \title{QQ-Plot of the residuals}
 \usage{
-qq_plot(error)
+\code{isnormalr:::qq_plot(X)}
+}
+\arguments{
+\item{X}{a numeric vector of data values}
 }
 \value{
-This function returns a QQ-plot
+An QQ-Plot
 }
 \description{
-QQ-Plot of the residuals
+Plots  studentized residuals from a linear model, against
+theoretical quantiles of a comparison distribution.
 }
+\details{
+Draws theoretical quantile-comparison plots for variables and for
+studentized residuals from a linear model. A comparison line is
+drawn on the plot either through the quartiles of the two
+distributions, or by robust regression.
+}
+\examples{
+\dontrun{
+z <- rnorm(100)
+isnormalr:::qq_plot(z)
+
+y <- rexp(100)
+isnormalr:::qq_plot(y)
+
+}
+
+}
+\references{
+Fox, J. 2016 Applied Regression Analysis and Generalized Linear Models, Third Edition. Sage.
+Fox, J. and Weisberg, S. 2019 An R Companion to Applied Regression, Third Edition, Sage.
+Atkinson, A. C. 1985 Plots, Transformations, and Regression. Oxford.
+}
+\keyword{\link{distribution}}
+\keyword{\link{regression}}
