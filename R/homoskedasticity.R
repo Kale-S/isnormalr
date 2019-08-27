@@ -1,10 +1,19 @@
 #' @title
 #' Breusch-Pagan Test
-#' @keywords
-#' htest
+#'
+#' @description
+#' Calculate a Breusch-Pegan Test for homoscedasticity
+#'
+#' @aliase \code{isnormalr:::bp_test(u, X)}
+#'
 #' @param u a vector with error terms
 #' @param X a dataframe with k parameter and n observations
 #'
+#' @details
+#' The Breusch Pagan Test and its special case, the White-Test, are
+#' statistical tests to test heteroskedasticity. In particular, they
+#' are used to verify the assumption of homoskeletal elasticity in
+#' regression analysis.
 #'
 #' @return
 #' A list with class htest cointaining the following components:

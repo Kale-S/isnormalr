@@ -86,7 +86,7 @@ resid_hist <- function(X){
 #' Fox, J. and Weisberg, S. 2019 An R Companion to Applied Regression, Third Edition, Sage.
 #' Atkinson, A. C. 1985 Plots, Transformations, and Regression. Oxford.
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' z <- rnorm(100)
 #' isnormalr:::qq_plot(z)
@@ -228,14 +228,13 @@ qq_plot <- function(X){
 #' doi: 10.2307/2986146.
 #'
 #'
-#' @return
+#' @examples
 #' \dontrun{
 #' z <- rnorm(100)
 #' isnormalr:::Shapiro_Wilk.test(z)
 #'
 #' y <- rexp(100)
 #' isnormalr:::Shapiro_Wilk.test(y)
-#'
 #' }
 Shapiro_Wilk.test <- function(X){
   DNAME <- deparse(substitute(X))

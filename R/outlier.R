@@ -34,15 +34,15 @@
 #' Springer-Verlag, Berlin Heidelberg 2014, ISBN 978-3-642-53739-4,
 #' S. 38.
 #'
-#' @example
+#' @examples
 #' \dontrun{
 #' Z <- matrix(rnorm(100), ncol = 10)
 #' isnormalr:::box_plot_x(Z)
 #'
 #' Y <- matrix(rexp(100), ncol = 10)
 #' isnormalr:::box_plot_x(Y)
-#'
 #' }
+#'
 #' @import
 #' ggplot2
 box_plot_x <- function(X){
@@ -180,20 +180,47 @@ hist_x <- function(X){
 }
 
 #' @title
-#' Plots the cooks distance
+#' Influence Observation
 #'
 #' @param lm a lm model
 #'
-#' @return
-#' A plot of the cooks distance
+#' @description
+#' This function is a suite of functions that can be used to compute
+#' some of the regression (leve-one-out deletion) diagnostics for a
+#' linear models discussed in Belsley, Kuh and Welsch (1980),
+#' Cook and Weisberg (1982)
 #'
-#' @export
-influence.observation <- function(mod){
+#'
+#' @usage
+#' \code{isnormalr:::influence.observation(object)}
+#'
+#' @details
+#' def of Standardized residuals
+#' def of Studentized residuals
+#' deg of Hat_Values / Lavarage Values
+#' def of Cooks distance
+#'
+#'
+#'
+#' @return
+#'
+#' @references
+#' Cook, R. D. and Weisberg, S. (1984) Residuals and Influence in
+#' Regression.
+#'
+#' Wiley. Fox, J. (1997) Applied Regression, Linear Models, and
+#' Related Methods.
+#'
+#' Sage. Williams, D. A. (1987) Generalized linear model diagnostics
+#' using the deviance and single case deletions. Applied Statistics
+#' 36, 181--191.
+#'
+influence.observation <- function(object){
 ## Cook's distance as levrage representation
 
   # second case
-  X <- model.matrix(mod)
-  e <- mod$residuals
+  X <- model.matrix(object)
+  e <- object$residuals
   n <- dim(X)[1]
   p <- dim(X)[2]
   s2 <- sum(e^2) / (n - p)
@@ -224,16 +251,34 @@ influence.observation <- function(mod){
   return(influence.obs)
 }
 
+#' @title
 #' Visualisation of the cook's distances
 #'
 #' @param cd Cook's distance
+#' @param p number of coefficents p = k - 1
 #'
 #' @return Barplot
-#' @export
+#'
+#'
+#'
+#'
 #' @import
 #' ggplot2
 #' ggrepel
 #' @examples
+#'
+#' @references
+#' Cook, R. D. and Weisberg, S. (1984) Residuals and Influence in
+#' Regression.
+#'
+#' Wiley. Fox, J. (1997) Applied Regression, Linear Models, and
+#' Related Methods.
+#'
+#' Sage. Williams, D. A. (1987) Generalized linear model diagnostics
+#' using the deviance and single case deletions. Applied Statistics
+#' 36, 181--191.
+#'
+#'
 plot.cd <- function(cd, p){
   df_cd <- data.frame("cd"=cd)
   names <- rownames(df_cd)
@@ -273,11 +318,26 @@ plot.cd <- function(cd, p){
 #' @title
 #' Plots the influence of observation on the regression line
 #'
-#' @param lm linear model
+#' @description
+#'
+#' @usage \code{isnormalr:::influence.plot(t, h, d)}
+#'
+#' @description
+#'
+#'
+#' @param t numeric vector of studentized residuals
+#' @param h numeric vector of hat values
+#' @param d numeric vector of cook distance values
+#'
+#'
 #'
 #' @return
 #' A plot
-#' @export
+#'
+#' @references
+#'
+#'
+#'
 #' @import
 #' ggplot2
 #' ggrepel
