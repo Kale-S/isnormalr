@@ -440,14 +440,14 @@ influence.plot <- function(t, h, d){ # r or t?
                            ymin = -Inf, ymax = -2.0001),
                        fill = 'red', alpha = 0.003) #+
     # add legend
-  p <- p + scale_fill_manual(values = c('deepskyblue1',
-                                        'orange',
-                                        'red'),
-                             labels =
-                               c('Low residuals and\nLow leverage',
-                                 'High residuals or\nHigh leverage',
-                                 'High residuals and\nHigh leverage'))
-  p <- p + theme(legend.position = 'bottom')
+  #p <- p + scale_fill_manual(values = c('deepskyblue1',
+   #                                     'orange',
+    #                                    'red'),
+      #                       labels =
+     #                          c('Low residuals and\nLow leverage',
+     #                            'High residuals or\nHigh leverage',
+     #                            'High residuals and\nHigh leverage'))
+  #p <- p + theme(legend.position = 'bottom')
     #ggplot2::annotate('text', x = 0.1, y = 0, label = 'Low residuals\nLow leverage',
     #                  color = 'deepskyblue1') +
     #ggplot2::annotate('text', label = 'Low leverage\nHigh residuals',
