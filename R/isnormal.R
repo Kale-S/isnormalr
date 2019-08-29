@@ -12,6 +12,11 @@ is.normal <- function(object){
   if(typeof(object) != 'list'){
     print('Some error later')
   }
+
+
+
+
+
   #------------- inizelizing of variable
   X <- model.matrix(object)  # without intercept
   y <- object$model[, 1]
@@ -62,7 +67,7 @@ is.normal <- function(object){
       Anderson.Darling = ad,
       cramer.v.mises = cm
       ),
-    Outlier=list(
+    Outlier = list(
       Cooks.Distance = inf.obs$cooks.distance,
       Hat.Values = inf.obs$leverage.value,
       Studentized.Residuals = inf.obs$studentized.residuals,
