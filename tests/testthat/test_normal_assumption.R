@@ -117,17 +117,17 @@ testthat::test_that('cramerv_mise.test hass the right length', {
 #                      )
 #})
 
-#### sturge_rule
-testthat::test_that('sturge_rule get the right number as output',{
-  testthat::expect_equal(sturge_rule(4), 3)
-  testthat::expect_equal(sturge_rule(12), 5)
-  testthat::expect_equal(sturge_rule(2893), 12)
+#### Square.root
+testthat::test_that('Square.root get the right number as output',{
+  testthat::expect_equal(isnormalr:::Square.root(4), 2)
+  testthat::expect_equal(isnormalr:::Square.root(12), 3)
+  testthat::expect_equal(isnormalr:::Square.root(2893), 54)
 })
-testthat::test_that('sturge_rule returns a double',{
-  testthat::expect_equal(typeof(sturge_rule(4)), 'double')
-  testthat::expect_equal(typeof(sturge_rule(12)), 'double')
+testthat::test_that('Square.root returns a double',{
+  testthat::expect_equal(typeof(isnormalr:::Square.root(4)), 'double')
+  testthat::expect_equal(typeof(isnormalr:::Square.root(12)), 'double')
 })
-testthat::test_that('sturge_rule returns warnings by negativ numbers', {
-  testthat::expect_warning(sturge_rule(-9))
-  testthat::expect_warning(sturge_rule(-80))
+testthat::test_that('Square.root returns warnings by negativ numbers', {
+  testthat::expect_warning(isnormalr:::Square.root(-9))
+  testthat::expect_warning(isnormalr:::Square.root(-80))
 })
