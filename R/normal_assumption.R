@@ -22,27 +22,35 @@
 #' resid_hist(lm(y ~ X))
 
 resid_hist <- function(X){
-  # safe the number of obs. for the calculation of the bins
+  # save the number of observations to calculate the bins
   n <- length(X)
+  # calculate the number of bins
   bins <- isnormalr:::Square.root(n)
+
+  # safe the mean of the residuals
+  X.mean <-  mean(X)
+  # safe the standard diviation of the residals
+  X.sd <- sd(X)
   # safe the input as data.frame
   X <- data.frame(X)
-  # safe the mean of the residuals
-  X.mean <-  colMeans(X)
-  # safe the standard diviation of the residals
-  X.sd <- apply(X, 2, sd, na.rm=TRUE)
 
   # ------------- generate plot
+  # define the x grid
   x.grid <- seq(-5, 5, length.out=10000)
+  # calculation of the standard normal density
   dens <- dnorm(x.grid, 0, 1)
+  # save all results in a data.frame
   df <- with(X, data.frame(x=x.grid, y=dens))
-  #bins <- isnormalr::sturge_rule(n)
 
+  # creating the plot
   h <- ggplot2::ggplot(X, aes(x = X)) +
+    # add the histogram
     ggplot2::geom_histogram(aes(y=..density..),
                                 col=I('black'),
                           alpha=0.6, bins=bins)
-  h <- h + ggplot2::geom_line(data=df, aes(x=x.grid, y=y), color='red')
+  # add the standard normal density
+  h <- h + ggplot2::geom_line(data=df, aes(x=x.grid, y=y),
+                              color='red')
 
   # add ylabel, xlabel and title
   h <- h + scale_x_continuous(name = 'Residuals') +
@@ -99,17 +107,18 @@ resid_hist <- function(X){
 #' @import
 #' ggplot2
 #'
-qq_plot <- function(X){
-  n <- length(X)
-#  mu <- mean(error)
-#  sd <- sd(error)
+qq_plot <- function(X, CookD, StudRes, Leverage){
+
+  # calculation of the number of Observations
+  n <- length(CookD)
+
 
   # Compute n + 1 evenly spaced points on the interval (0, 1)
   prob <- ppoints(n)
   # Calculate the theroetical quantiles
   normal.quantiles <- qnorm(prob, mean = 0L, sd = 1L)
 
-  # calculation of the abline lobe an intecept
+  # calculation of the abline slope an intecept
   y <- quantile(X, c(0.25, 0.75))
   x <- qnorm(c(0.25, 0.75))
   slope <- diff(y) / diff(x)
@@ -118,60 +127,67 @@ qq_plot <- function(X){
   # build a data.frame
   df <- data.frame(normal.quantiles = sort(normal.quantiles),
                    sample.quantiles = sort(X))
+
   names <- names(sort(X))
 
 
-## plot the results
+  # ------------- generate plot
+  # create the plot
   qq <- ggplot2::ggplot(df, aes(x=normal.quantiles,
                                 y=sample.quantiles)) +
+        # add the points
         ggplot2::geom_point() +
-        # gray abline
+        # add a gray abline
         ggplot2::geom_abline(intercept = intercept, slope = slope,
                              color="#666666", size=1.2)
 
-  # Plot the extreme values
-  extreme <- sum(df$sample.quantiles >= 2 | df$sample.quantiles <= -2)
+  # ------------- extream value
+  # rule of thumb for Hat Values (2 * mean(Hat Value))
+  thresh_Lev <- 2 * mean(Leverage)
+  # rule of thumb for Cooks Distance (CookD > 1)
+  thresh_CookD <- 1
+  # Create a DataFrame for the nessercery values
+  df2 <- data.frame('Hat.Values'=Leverage,
+                   'Studentized.Residuals'=StudRes,
+                   'Cooks.Distance'=CookD)
+  # inizilisation of a vector for the influencial obs.
+  all.bool <- rep(FALSE, times = n)
+  # find the possible influencial for Hat Values
+  hatval <- which(df2$Hat.Values >=  thresh_Lev)
+  # find the possible influencial obs for rstud
+  rstud <- order(abs(df2$Studentized.Residuals),
+                 decreasing = TRUE)[1:2]
+  # find the possible influencial obs. for CookD
+  cook <- which(df2$Cooks.Distance > 1)
+  # Keep only all influencial obs. one time
+  all <- sort(union(rstud, union(hatval, cook)))
+  # define the influencial obs.
+  all.bool[all] <- TRUE
+  # sort the boolen
+  all.bool <- all.bool[order(X)]
 
-  if(extreme >= 1 & extreme <= 7){
-          # red text
-    qq <- qq + ggrepel::geom_text_repel(aes(label=
-                                  ifelse(sample.quantiles >= 2 |
-                                         sample.quantiles <= -2,
-                                         names,'')),
-                                   size=3, color = 'red') +
-         # red Poins
-         ggplot2::geom_point(data = df[df$sample.quantiles >= 2, ],
-                         aes(x=normal.quantiles,
-                             y=sample.quantiles),
-                         colour = 'red') +
 
-          ggplot2::geom_point(data = df[df$sample.quantile <= -2, ],
-                         aes(x=normal.quantiles,
-                             y=sample.quantiles),
-                         colour = 'red')
+  # ------------- add the influencial obs
+  # add the lable of the influencial obs
+  qq <- qq + ggrepel::geom_text_repel(aes(label=
+                                      ifelse(all.bool,
+                                             names, "")),
+                                      size = 3, color = 'red') +
+             # add the color to the influenical obs.
+             ggplot2::geom_point(data = df[all.bool,],
+                                 aes(x=normal.quantiles,
+                                     y=sample.quantiles),
+                                     colour = 'red')
 
-  }else if(extreme >= 7){ # default method if there are to many observations
-     which.rstud <- order(abs(df$sample.quantiles), decreasing = TRUE)[1:2]
-     all.bool <- rep(FALSE, times = n)
-     all.bool[which.rstud] <- TRUE
-     # add the Name and the colur
-     qq <- qq + ggrepel::geom_text_repel(aes(label=
-                                               ifelse(all.bool,
-                                                      names, "")),
-                                         size = 3, color = 'red') +
-     # add the color
-                ggplot2::geom_point(data = df[all.bool,],
-                                    aes(x=normal.quantiles,
-                                        y=sample.quantiles),
-                                    colour = 'red')
-  }
+
   # add xlabel, ylabel and title
   qq <- qq +
     ggplot2::scale_x_continuous(name = 'Theoretical Quatiles') +
     ggplot2::scale_y_continuous(name = 'Studentiued residuals') +
     ggplot2::ggtitle('Normal Q-Q')
   # add the theme
-  qq <- qq + theme_isnormalr()
+  qq <- qq + isnormalr:::theme_isnormalr()
+
   return(qq)
 }
 
@@ -237,6 +253,7 @@ qq_plot <- function(X){
 #' isnormalr:::Shapiro_Wilk.test(y)
 #' }
 Shapiro_Wilk.test <- function(X){
+  # save the name of the input variable
   DNAME <- deparse(substitute(X))
   # sort the X values
   X <- sort(X[complete.cases((X))])
@@ -257,20 +274,23 @@ Shapiro_Wilk.test <- function(X){
   # calculate u
   u <- 1 / sqrt(n)
 
-  # calculate the wights for the test
+  # inizilisation of a vector to store the weight
   a <- rep(0, times=n)
-
+  # calculate the last weight
   a[n] <- -2.706056 * u^5 + 4.434685 * u^4 - 2.071190 * u^3 -
     0.147981 * u^2 + 0.221157 * u + m[n] * m2^-0.5
-
+  # calculate the second last weight
   a[n-1] <- -3.582633 * u^5 + 5.682633 * u^4 - 1.752461 * u^3 -
     0.293762 * u^2 + 0.042981 * u + m[n-1] * m2^-0.5
+  # calculate the first weight
   a[1] <- -a[n]
+  # calculate the second weight
   a[2] <- -a[n-1]
 
   ## calculate e
   e <- (m2 - 2 * m[n]^2 - 2 * m[n-1]^2) / (1 - 2 * a[n]^2 - 2 * a[n-1]^2)
 
+  # calculate the Other weights
   for(i in seq(3, n-2)){
     a[i] <- m[i] / sqrt(e)
   }
@@ -279,15 +299,16 @@ Shapiro_Wilk.test <- function(X){
   W <- (t(a) %*% sort(X))^2 / sum((X - mean(X))^2)
 
 
-  # calculation of the P-value via normal distributed test statstic
+  # calculation of mu for the Z test statistic
   mu <- 0.0038915 * log(n)^3 - 0.083751 * log(n)^2 - 0.31082 * log(n) -
         1.5861
+  # calculation of sigma for the Z test statistic
   sig <- exp(0.0030302 * log(n)^2 - 0.082676 * log(n) - 0.4803)
-
+  # calculation of the Z test statistic
   z <- (log(1 - W) - mu) / sig
-
+  # calculation of the P value
   pval <- 1 - pnorm(z)
-
+  # save the results in a list
   RVAL <- list(statistic = c(w = W),
                p.value = pval,
                method = 'Shapiro-Wilk normality test',
