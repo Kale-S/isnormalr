@@ -11,7 +11,7 @@
 
 \item{h}{numeric vector of hat values}
 
-\item{d}{numeric vector of cook distance values}
+\item{cd}{numeric vector of cook distance values}
 }
 \value{
 A plot

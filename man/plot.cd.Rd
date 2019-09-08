@@ -4,7 +4,7 @@
 \alias{plot.cd}
 \title{Visualisation of the cook's distances}
 \usage{
-\method{plot}{cd}(cd, p)
+\method{plot}{cd}(CookD, StudRes, Leverage)
 }
 \arguments{
 \item{cd}{Cook's distance}
