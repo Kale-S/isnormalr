@@ -246,7 +246,7 @@ influence.observation <- function(object){
                         standardized.residuals = r,
                         studentized.residuals = t)
 
-  class(influence.obs) <- 'influential.observation'
+  #class(influence.obs) <- 'influential.observation'
 
   return(influence.obs)
 }
@@ -279,37 +279,58 @@ influence.observation <- function(object){
 #' 36, 181--191.
 #'
 #'
-plot.cd <- function(cd, p){
-  df_cd <- data.frame("cd"=cd)
-  names <- rownames(df_cd)
-  cd.plot <- ggplot(df_cd, aes(x = names, y = cd)) +
-    geom_bar(stat = 'identity', width=0.2, col=I('black'),
-             alpha = 0.6)
+plot.cd <- function(CookD, StudRes, Leverage){
 
-## add the threshold value
-  th.value <- qf(0.5, p, dim(df_cd)[1] - p) # 3 * mean(df_cd$cd)
-  large.obs <- which(df_cd$cd >= th.value)
-  names.large.obs <- names[large.obs]
+  n <- length(CookD)
+  thresh_Lev <- 2 * mean(Leverage)
+  thresh_CookD <- 1
 
+  df <- data.frame('Hat.Values'=Leverage,
+                   'Studentized.Residuals'=StudRes,
+                   'Cooks.Distance'=CookD)
+
+  names <- rownames(df)
+  ## add possible influencial observations
+  all.bool <- rep(FALSE, times = n)
+  hatval <- which(df$Hat.Values >=  thresh_Lev)
+  rstud <- order(abs(df$Studentized.Residuals),
+                 decreasing = TRUE)[1:2]
+  cook <- which(df$Cooks.Distance > 1)
+  all <- sort(union(rstud, union(hatval, cook)))
+  all.bool[all] <- TRUE
+  df <- cbind(df, all.bool)
+
+  # create the plot
+  cd.plot <- ggplot(df, aes(x = names, y = Cooks.Distance,
+                            fill = all.bool)) +
+    geom_bar(stat="identity") +
+    scale_fill_manual(values = c('#757575', 'red'))
+
+  # add thresh line
   cd.plot <- cd.plot +
-    geom_abline(slope=0, intercept=th.value, col = "red", lty=2)
-
-  if(th.value <= max(df_cd$cd)){
-    cd.plot <- cd.plot +
-      ggrepel::geom_text_repel(aes(label=ifelse(df_cd$cd>th.value,
-                                                names,'')), size=2)
-  }
+    geom_abline(slope=0, intercept = thresh_CookD,
+                col = "red", lty=2)
+  # add pissible influencial observations
+  cd.plot <- cd.plot +
+    ggrepel::geom_text_repel(aes(label=
+                             ifelse(all.bool,
+                                    names, '')), size = 3,
+                             color = 'red')
 
   # add xlab, ylab and title
   cd.plot <- cd.plot  +
     scale_x_discrete(name='Observation') +
-    scale_y_continuous(name='Cooks Distance',
-                       limits=c(0,max(df_cd$cd) + 0.1)) +
+    scale_y_continuous(name='Cooks Distance') +
     ggplot2::ggtitle('Cook`s Distance plot')
   # add the theme
-  cd.plot <- cd.plot + theme_isnormalr() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.3, size=10),
-          axis.ticks = element_blank())
+  cd.plot <- cd.plot + isnormalr:::theme_isnormalr()
+  cd.plot <- cd.plot +
+    theme(axis.text.x = element_blank(),#element_text(angle = 90, hjust = 1, vjust=0.3, size=10),
+          axis.ticks = element_blank(),
+          legend.title = element_blank(),
+          panel.grid.major = element_line(colour = NA),
+          panel.grid.minor = element_line(colour = '#cccccc'),
+          legend.position = 'none')
 
   return(cd.plot)
 }
@@ -327,7 +348,7 @@ plot.cd <- function(cd, p){
 #'
 #' @param t numeric vector of studentized residuals
 #' @param h numeric vector of hat values
-#' @param d numeric vector of cook distance values
+#' @param cd numeric vector of cook distance values
 #'
 #'
 #'
@@ -341,19 +362,19 @@ plot.cd <- function(cd, p){
 #' @import
 #' ggplot2
 #' ggrepel
-influence.plot <- function(t, h, d){ # r or t?
-  n <- length(d)
+influence.plot <- function(t, h, cd){ # r or t?
+  n <- length(cd)
   m2 <- 2 * mean(h)
   m3 <- 3 * mean(h)
   df <- data.frame('Hat.Values'=h,
                    'Studentized.Residuals'=t,
-                   'Cooks.Distance'=d)
+                   'Cooks.Distance'=cd)
   # scale of the bubbels
   scale <- 10 / max(df$Cooks.Distance)
   p <- ggplot(df, aes(x=Hat.Values, y=Studentized.Residuals,
                       size=Cooks.Distance)) +
     geom_point(shape=1) +  # make rings
-    scale_size(range = c(0, min(2*n * max(d), 25)))   # scale the size of the rings
+    scale_size(range = c(0, min(2*n * max(cd), 25)))   # scale the size of the rings
 
 
   # add vertical lines
@@ -363,11 +384,7 @@ influence.plot <- function(t, h, d){ # r or t?
   }else if(m2 <= max(h)){
     p <- p + geom_vline(xintercept=m2, lty=2)
   }
-  #ifelse(m3 <= max(h),
-  #       p <- p + geom_vline(xintercept=m3, lty=2) +
-  #         geom_vline(xintercept = m2, lty=2),
-  #       ifelse(m2 <= max(h),
-  #              p <- p + geom_vline(xintercept=m2, lty=2)))
+
   # add horizontal lines
   if(min(t) < 0 & max(t) > 0){
     p <- p + geom_hline(yintercept = 0, lty=2)
@@ -380,37 +397,39 @@ influence.plot <- function(t, h, d){ # r or t?
   }else if(min(t) <= -2 & max(t) <= 2){
     p <- p + geom_hline(yintercept = -2, lty=2)
   }
-  #ifelse(min(t) < 0 & max(t) > 0,
-  #       p <- p + geom_hline(yintercept = 0, lty=2))
-  #ifelse(min(t) < -2 & max(t) >= 2,
-  #       p <- p + geom_hline(yintercept = 2, lty=2) +
-  #         geom_hline(yintercept = -2, lty=2),
-  #       ifelse(min(t) > -2 & max(t) >= 2,
-  #              p <- p + geom_hline(yintercept = 2, lty=2),
-  #              ifelse(min(t) <= -2 & max() <= 2,
-  #                     p <- p + geom_hline(yintercept = -2, lty=2)),
-  #              ''))
 
   # add the names of the influence observations
-  names <- names(d)
-  if(sum(h >= m2 | t >= 2 | t<= -2) < 10){
-     p <- p + ggrepel::geom_text_repel(aes(label=ifelse(h >= m2,
-                                                     names,'')),
-               size=4) +
-              ggrepel::geom_text_repel(aes(label=
-                                             ifelse(t >= 2 | t <= -2,
-                                              names,'')), size=4)
-  }else{ #default method if many observations
-    all.bool <- rep(FALSE, times = n)
-    hatval <- order(df$Hat.Values, decreasing = TRUE)[1:2]
-    rstud <- order(abs(df$Studentized.Residuals), decreasing = TRUE)[1:2]
-    cook <- order(df$Cooks.Distance, decreasing = TRUE)[1:2]
-    all <- union(rstud, union(hatval, cook))
-    all.bool[all] <- TRUE
-    p <- p + ggrepel::geom_text_repel(aes(label=
-                                        ifelse(all.bool,
-                                               names, "")), size = 4)
-  }
+  names <- names(cd)
+  ############# Alternative 2 ######### works well ###########
+  #if(sum(h >= m2 | t >= 2 | t<= -2) < 10){
+  #   p <- p + ggrepel::geom_text_repel(aes(label=ifelse(h >= m2,
+  #                                                   names,'')),
+  #             size=4) +
+  #            ggrepel::geom_text_repel(aes(label=
+  #                                           ifelse(t >= 2 | t <= -2,
+  #                                            names,'')), size=4)
+  #}else{ #default method if many observations
+  #  all.bool <- rep(FALSE, times = n)
+  #  hatval <- order(df$Hat.Values, decreasing = TRUE)[1:2]
+  #  rstud <- order(abs(df$Studentized.Residuals), decreasing = TRUE)[1:2]
+  #  cook <- order(df$Cooks.Distance, decreasing = TRUE)[1:2]
+  #  all <- union(rstud, union(hatval, cook))
+  #  all.bool[all] <- TRUE
+  #  p <- p + ggrepel::geom_text_repel(aes(label=
+  #                                      ifelse(all.bool,
+  #                                             names, "")), size = 4)
+  #}
+
+  ## How the lecture does it
+  all.bool <- rep(FALSE, times = n)
+  hatval <- which(df$Hat.Values >=  m2)
+  rstud <- order(abs(df$Studentized.Residuals), decreasing = TRUE)[1:2]
+  cook <- which(df$Cooks.Distaance > 1)
+  all <- union(rstud, union(hatval, cook))
+  all.bool[all] <- TRUE
+  p <- p + ggrepel::geom_text_repel(aes(label=
+                                      ifelse(all.bool,
+                                             names, '')), size = 4)
 
   # add ylab, ylab and title
   p <- p + scale_x_continuous(name = 'Leverage') +
@@ -420,10 +439,10 @@ influence.plot <- function(t, h, d){ # r or t?
   p <- p + theme_isnormalr() +
     theme(legend.position = "none") # delete the legend
 
-  # add information
+  # add color information
   p <- p + ggplot2::geom_rect(aes(xmin = -Inf, xmax = m2,
                                  ymin = -2, ymax = 2),
-                             fill = 'deepskyblue1', alpha=0.003) +
+                             fill = 'green', alpha=0.003) +
     ggplot2::geom_rect(aes(xmin = -Inf, xmax = m2,
                            ymin = -Inf, ymax = -2.00001),
                        fill = 'orange', alpha = 0.003) +
@@ -438,29 +457,7 @@ influence.plot <- function(t, h, d){ # r or t?
                        fill = 'red', alpha = 0.003) +
     ggplot2::geom_rect(aes(xmin = m2 + 0.0001, xmax = Inf,
                            ymin = -Inf, ymax = -2.0001),
-                       fill = 'red', alpha = 0.003) #+
-    # add legend
-  #p <- p + scale_fill_manual(values = c('deepskyblue1',
-   #                                     'orange',
-    #                                    'red'),
-      #                       labels =
-     #                          c('Low residuals and\nLow leverage',
-     #                            'High residuals or\nHigh leverage',
-     #                            'High residuals and\nHigh leverage'))
-  #p <- p + theme(legend.position = 'bottom')
-    #ggplot2::annotate('text', x = 0.1, y = 0, label = 'Low residuals\nLow leverage',
-    #                  color = 'deepskyblue1') +
-    #ggplot2::annotate('text', label = 'Low leverage\nHigh residuals',
-    #                  x = 0.1, y = 2.2, color = 'orange') +
-    #ggplot2::annotate('text', label = 'Low leverage\nHigh residuals',
-    #                  x = 0.1, y = -2.2, color = 'orange') +
-    #ggplot2::annotate('text', label = 'Low residuals\nHigh leverage',
-    #                  x = m2 + 0.03, y = 0, color = 'orange') +
-    #ggplot2::annotate('text', label = 'High residuals\nHigh leverage',
-    #                  x = m2 + 0.03, y = 2.2, color = 'red') +
-    #ggplot2::annotate('text', label = 'High residuals\nHigh leverage',
-    #                  x = m2 + 0.03, y = -2.2, color = 'red')
-
+                       fill = 'red', alpha = 0.003)
 
   return(p)
 
