@@ -72,13 +72,9 @@ bp_test <- function(u, X){
 
   # Calculate the test staitisc
   LM <- n * r2
+  # Calculate the p-value
+  pval <- pchisq(LM, k, lower.tail = FALSE)
 
-  # calculate critical value
-  LM.k <- qchisq(0.95, df=k)
-
-
-
-  pval <- 1 - pchisq(LM, df=k)
   ## generate the return S3 htest class ##
   RVAL <- list(statistic = c(LM = LM),
                p.value = pval,
@@ -86,7 +82,6 @@ bp_test <- function(u, X){
                method = "studentized Breusch-Pagan heteroskedasticity test",
                data.name = DNAME)
   class(RVAL) <- "htest"
-
 
   return(RVAL)
 }
@@ -102,18 +97,18 @@ bp_test <- function(u, X){
 #' @import
 #' ggplot2
 #' @examples
-Spread.level.plot <- function(fitted.value, t){
+Spread.level.plot <- function(fitted.value, StudRes , CookD, Leverage){
   # generated two plots
   # 1. Studentizied Residuals vs. Fitted Value
   # 2. log(abs(Studentizied Residuals)) vs log(fitted Values)
 
   df <- data.frame(y_hat = fitted.value,
                    #log.y_hat = log10(fitted.value),
-                   rstudent = t,
-                   abs.rstudent = abs(t))
+                   rstudent = StudRes,
+                   abs.rstudent = abs(StudRes))
 
   # Plot 1
-  p1 <- ggplot(df, aes(x=y_hat, y=t)) +
+  p1 <- ggplot(df, aes(x=y_hat, y=rstudent)) +
           geom_point() +
           geom_hline(yintercept = 0, lty=2, col = '#666666',
                      size = 1) +
@@ -129,6 +124,34 @@ Spread.level.plot <- function(fitted.value, t){
     scale_x_continuous(name='Fitted Values') +
     scale_y_continuous(name='Absolute Studentized Residuals') +
     ggplot2::ggtitle('Spread-Level Plot')
+
+  # Extream Value
+  thresh_Lev <- 2 * mean(Leverage)
+  thresh_CookD <- 1
+
+  df2 <- data.frame('Hat.Values'=Leverage,
+                    'Studentized.Residuals'=StudRes,
+                    'Cooks.Distance'=CookD)
+  ## add possible influencial observations
+  all.bool <- rep(FALSE, times = n)
+  hatval <- which(df2$Hat.Values >=  thresh_Lev)
+  rstud <- order(abs(df2$Studentized.Residuals),
+                 decreasing = TRUE)[1:2]
+  cook <- which(df2$Cooks.Distance > 1)
+  all <- sort(union(rstud, union(hatval, cook)))
+  all.bool[all] <- TRUE
+  names <- rownames(df2)
+
+  # Colour the points and add name
+  p2 <- p2 + ggrepel::geom_text_repel(aes(label=
+                                            ifelse(all.bool,
+                                                   names, "")),
+                                      size = 3, color = 'red') +
+    #add the color
+             ggplot2::geom_point(data = df[all.bool,],
+                                 aes(x=y_hat,
+                                    y=abs.rstudent),
+                                 colour = 'red')
 
   #add the theme
   p1 <- p1 + theme_isnormalr()
