@@ -4,7 +4,7 @@
 \alias{Spread.level.plot}
 \title{Spread-Level Plot}
 \usage{
-Spread.level.plot(fitted.value, t)
+Spread.level.plot(fitted.value, StudRes, CookD, Leverage)
 }
 \arguments{
 \item{model}{}
