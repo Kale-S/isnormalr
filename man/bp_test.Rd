@@ -4,39 +4,26 @@
 \alias{bp_test}
 \title{Breusch-Pagan Test}
 \usage{
-bp_test(u, X)
+bp_test(e, X)
 }
 \arguments{
-\item{u}{a vector with error terms}
+\item{e}{a vector with error terms}
 
 \item{X}{a dataframe with k parameter and n observations}
 }
 \value{
-A list with class htest cointaining the following components:
-
-statisic
-  the value of the statistic.
-
-p.value
-  the p-value of the test
-
-parameter
-  degrees of freedom.
-
-method
-  a character string indicating what type of test was performed.
-
-data.name
-  a character sting giving the name of the data.
+An htest object is returned. The critical value and the p-value are
+contained in the object.
 }
 \description{
-Calculate a Breusch-Pegan Test for homoscedasticity
+Calculate a Breusch-Pegan test for heteroscedasticity
 }
 \details{
-The Breusch Pagan Test and its special case, the White-Test, are
-statistical tests to test heteroskedasticity. In particular, they
-are used to verify the assumption of homoskeletal elasticity in
-regression analysis.
+The Breusch-Pagan test fits a linear regression model to the
+residuals of a linear regression model and rejects if too
+much of the variance is explained by the additional explanatory
+variables. Under H0 the test statistic of the Breusch-Pagan test
+follows a chi-squared distribution with k degrees of freedom.
 }
 \examples{
  \dontrun{
@@ -48,8 +35,8 @@ err1 <- rnorm(100)
 err2 <- rnorm(100, sd = x)
 
 # perform the Breusch-Pagan test
-bp_test(err1, X)
-bp_test(err2, X)
+olsdiagnosticR:::bp_test(err1, X)
+olsdiagnosticR:::bp_test(err2, X)
 }
 }
 \references{

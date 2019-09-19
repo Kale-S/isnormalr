@@ -8,7 +8,7 @@ testthat::test_that('VIF returms the right output', {
   e <- rnorm(25)
   y <- X %*% b  + e
   mod <- lm(y ~ X)
-  v <- isnormalr:::VIF(model.matrix(mod))
+  v <- olsdiagnosticR:::VIF(model.matrix(mod))
   testthat::expect_equal(v, c(X1 = 1.05065590203148,
                               X2 = 1.15607503324735,
                               X3 = 1.063129114148,
@@ -20,7 +20,7 @@ testthat::test_that('VIF returms the right output', {
   x3 = 2 * x1 + 4 * x2 + rnorm(100, mean = 20, sd = 10)
   y = 3 + x1 + x2 + rnorm(n = 100, mean = 0, sd = 1)
   mod <- lm(y ~ x1 + x2 + x3)
-  v <- isnormalr:::VIF(model.matrix(mod))
+  v <- olsdiagnosticR:::VIF(model.matrix(mod))
   testthat::expect_equal(v, c(x1 = 4.27741639804934,
                               x2 = 5.32173922080072,
                               x3 = 8.22165147148913
@@ -33,7 +33,7 @@ testthat::test_that('VIF has the right length', {
   e <- rnorm(20)
   y <- X %*% b  + e
   mod <- lm(y ~ X)
-  v <- isnormalr:::VIF(model.matrix(mod))
+  v <- olsdiagnosticR:::VIF(model.matrix(mod))
   testthat::expect_equal(length(v), 5)
 
   set.seed(123)
@@ -42,7 +42,7 @@ testthat::test_that('VIF has the right length', {
   e <- rnorm(100)
   y <- X %*% b  + e
   mod <- lm(y ~ X)
-  v <- isnormalr:::VIF(model.matrix(mod))
+  v <- olsdiagnosticR:::VIF(model.matrix(mod))
   testthat::expect_equal(length(v), 20)
 
 })
@@ -53,7 +53,7 @@ testthat::test_that('VIF has the right type', {
   e <- rnorm(25)
   y <- X %*% b  + e
   mod <- lm(y ~ X)
-  v <- isnormalr:::VIF(model.matrix(mod))
+  v <- olsdiagnosticR:::VIF(model.matrix(mod))
   testthat::expect_type(v, 'double')
   testthat::expect_true(is.vector(v) == TRUE)
 })

@@ -2,36 +2,21 @@
 #' Breusch-Pagan Test
 #'
 #' @description
-#' Calculate a Breusch-Pegan Test for homoscedasticity
+#' Calculate a Breusch-Pegan test for heteroscedasticity
 #'
-#' @aliase \code{isnormalr:::bp_test(u, X)}
-#'
-#' @param u a vector with error terms
+#' @param e a vector with error terms
 #' @param X a dataframe with k parameter and n observations
 #'
 #' @details
-#' The Breusch Pagan Test and its special case, the White-Test, are
-#' statistical tests to test heteroskedasticity. In particular, they
-#' are used to verify the assumption of homoskeletal elasticity in
-#' regression analysis.
+#' The Breusch-Pagan test fits a linear regression model to the
+#' residuals of a linear regression model and rejects if too
+#' much of the variance is explained by the additional explanatory
+#' variables. Under H0 the test statistic of the Breusch-Pagan test
+#' follows a chi-squared distribution with k degrees of freedom.
 #'
 #' @return
-#' A list with class htest cointaining the following components:
-#'
-#' statisic
-#'   the value of the statistic.
-#'
-#' p.value
-#'   the p-value of the test
-#'
-#' parameter
-#'   degrees of freedom.
-#'
-#' method
-#'   a character string indicating what type of test was performed.
-#'
-#' data.name
-#'   a character sting giving the name of the data.
+#' An htest object is returned. The critical value and the p-value are
+#' contained in the object.
 #'
 #' @references
 #' T.S. Breusch & A.R. Pagan (1979), A Simple Test for Heteroscedasticity and Random Coefficient Variation.
@@ -48,76 +33,95 @@
 #' err2 <- rnorm(100, sd = x)
 #'
 #' # perform the Breusch-Pagan test
-#' bp_test(err1, X)
-#' bp_test(err2, X)
+#' olsdiagnosticR:::bp_test(err1, X)
+#' olsdiagnosticR:::bp_test(err2, X)
 #' }
-bp_test <- function(u, X){
-
+bp_test <- function(e, X){
+  # save the name of the input variable
   DNAME <- deparse(substitute(X))
-
+  # deleting the intercept
   if(colnames(X)[1] == '(Intercept)'){
     X <- X[, -1]
   }
+  # crate a DataFrame
   X <- data.frame(X)
 
-  ## implementing the LM statistic ##
-  u2 <- u^2  # squerd residuals
 
-  n <- dim(X)[1]
-  k <- dim(X)[2]
+  e2 <- e^2  # squared residuals
 
-  mod <- lm(u2 ~., data=X)  # fit a linear model
+  n <- dim(X)[1]  # number of observations
+  k <- dim(X)[2]  # number of parameters
 
+  mod <- stats::lm(e2 ~., data=X)  # fit a linear model
+
+  # get the R2
   r2 <- summary(mod)$r.squared
 
-  # Calculate the test staitisc
+  # calculation of the test statistic
   LM <- n * r2
-  # Calculate the p-value
-  pval <- pchisq(LM, k, lower.tail = FALSE)
+  # calculate the pvalue
+  pval <- stats::pchisq(LM, k, lower.tail = FALSE)
 
-  ## generate the return S3 htest class ##
+  # generate the return S3 htest class
   RVAL <- list(statistic = c(LM = LM),
                p.value = pval,
                parameter = c(df = k),
-               method = "studentized Breusch-Pagan heteroskedasticity test",
+               method = 'Breusch-Pagan heteroskedasticity test',
                data.name = DNAME)
-  class(RVAL) <- "htest"
+  class(RVAL) <- 'htest'
 
   return(RVAL)
 }
 
 
 
+#' @title
 #' Spread-Level Plot
 #'
-#' @param model
+#' @description
+#' Creates plots for examining the possible dependence of spread on
+#' level, or an extension of these plots to the studentized residuals
+#' from linear models.
+#'
+#' @param fitted.value
+#' a single numeric vector of data values
+#'
+#' @inheritParams qq_plot
+#'
+#' @details
+#' Plots abs(studentized residuals) vs. fitted values.
 #'
 #' @return
-#' @export
+#' qqplot-object
+#'
+#' @references
+#' Fox, J. (1997) Applied Regression, Linear Models, and Related Methods.
+#' Sage. Hoaglin, D. C., Mosteller, F. and Tukey, J. W. (Eds.) (1983)
+#' Understanding Robust and Exploratory Data Analysis. Wiley.
+#'
+#' @examples
+#' \dontrun{
+#' y_hat <- rnorm(100)
+#' X <- (matrix(rnorm(1000), nrow = 100))
+#' resid <- rnorm(100)
+#' inf_obs <- olsdiagnosticR:::influence_observation(X = X, e = error)
+#' olsdiagnosticR:::Spread_level_plot(fitted.value = y_hat,
+#'                                    influence_obs = inf_obs)
+#' }
+#'
+#'
 #' @import
 #' ggplot2
-#' @examples
-Spread.level.plot <- function(fitted.value, StudRes , CookD, Leverage){
-  # generated two plots
-  # 1. Studentizied Residuals vs. Fitted Value
-  # 2. log(abs(Studentizied Residuals)) vs log(fitted Values)
+Spread_level_plot <- function(fitted.value, influence_obs){
 
+  n <- length(fitted.value)
+  # create a DataFrame
   df <- data.frame(y_hat = fitted.value,
-                   #log.y_hat = log10(fitted.value),
-                   rstudent = StudRes,
-                   abs.rstudent = abs(StudRes))
+                   rstudent = influence_obs$studentized.residuals,
+                   abs.rstudent =
+                     abs(influence_obs$studentized.residuals))
 
-  # Plot 1
-  p1 <- ggplot(df, aes(x=y_hat, y=rstudent)) +
-          geom_point() +
-          geom_hline(yintercept = 0, lty=2, col = '#666666',
-                     size = 1) +
-          scale_x_continuous(name='Fitted Values') +
-          scale_y_continuous(name='Studentized Residuals')
-  # add nd title
-  p1 <- p1 +
-        ggtitle('Spread-Level Plot_Other')
-
+  # ------------- generate plot
   p2 <- ggplot(df, aes(x=y_hat, y = abs.rstudent)) +
           geom_point() +
           geom_smooth(method='lm',formula=y~x, color='#666666') +
@@ -125,27 +129,31 @@ Spread.level.plot <- function(fitted.value, StudRes , CookD, Leverage){
     scale_y_continuous(name='Absolute Studentized Residuals') +
     ggplot2::ggtitle('Spread-Level Plot')
 
-  # Extream Value
-  thresh_Lev <- 2 * mean(Leverage)
-  thresh_CookD <- 1
+  # create a DataFrame for the necessary values
+  df2 <- data.frame('Hat.Values'=influence_obs$leverage.value,
+                    'Studentized.Residuals'=
+                      influence_obs$studentized.residuals,
+                    'Cooks.Distance'= influence_obs$cooks.distance)
 
-  df2 <- data.frame('Hat.Values'=Leverage,
-                    'Studentized.Residuals'=StudRes,
-                    'Cooks.Distance'=CookD)
-  ## add possible influencial observations
+  # initialization of a vector for the influential obs.
   all.bool <- rep(FALSE, times = n)
-  hatval <- which(df2$Hat.Values >=  thresh_Lev)
-  rstud <- order(abs(df2$Studentized.Residuals),
-                 decreasing = TRUE)[1:2]
-  cook <- which(df2$Cooks.Distance > 1)
-  all <- sort(union(rstud, union(hatval, cook)))
+  # find the possible influential for Hat Values
+  hatval <- order(df2$Hat.Values, decreasing = TRUE)[1:2]
+  # find the possible influential obs for rstud
+  rstud <- order(abs(df2$Studentized.Residuals), decreasing = TRUE)[1:2]
+  # find the possible influential obs. for CookD
+  cook <-order(df2$Cooks.Distance, decreasing = TRUE)[1:2]
+  # keep only all influential obs. one time
+  all <- union(rstud, union(hatval, cook))
+  # define the influential obs.
   all.bool[all] <- TRUE
+  # save the rownames
   names <- rownames(df2)
 
-  # Colour the points and add name
+  # color the points and add name
   p2 <- p2 + ggrepel::geom_text_repel(aes(label=
                                             ifelse(all.bool,
-                                                   names, "")),
+                                                   names, '')),
                                       size = 3, color = 'red') +
     #add the color
              ggplot2::geom_point(data = df[all.bool,],
@@ -154,15 +162,11 @@ Spread.level.plot <- function(fitted.value, StudRes , CookD, Leverage){
                                  colour = 'red')
 
   #add the theme
-  p1 <- p1 + theme_isnormalr()
+  p2 <- p2 + theme_olsdiagnosticR()
 
-  p2 <- p2 + theme_isnormalr()
+  # add footnote
+  p2 <- p2 + labs(caption = 'possible outlier')
 
-  # Generate an s3 object
-  sl <- list('Spread.level' = p2,
-             'Student.Fitted' = p1)
 
-  class(sl) <- 'Spread Level'
-
-  return(sl)
+  return(p2)
 }

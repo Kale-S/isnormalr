@@ -4,13 +4,13 @@
 \alias{box_plot_x}
 \title{Box-Whisker-Plot}
 \usage{
-\code{isnormalr:::box_plot_x(X)}
+box_plot_x(X)
 }
 \arguments{
-\item{X}{design matrix (nxk)}
+\item{X}{Data.Frame}
 }
 \value{
-
+qqplot-object
 }
 \description{
 A Box-Whisker-Plot for each numeric column in the design matrix
@@ -31,10 +31,10 @@ quartile and the maximum.
 \examples{
 \dontrun{
 Z <- matrix(rnorm(100), ncol = 10)
-isnormalr:::box_plot_x(Z)
+olsdiagnosticR:::box_plot_x(Z)
 
 Y <- matrix(rexp(100), ncol = 10)
-isnormalr:::box_plot_x(Y)
+olsdiagnosticR:::box_plot_x(Y)
 }
 
 }

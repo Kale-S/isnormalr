@@ -4,8 +4,7 @@
 #' @description
 #' A Box-Whisker-Plot for each numeric column in the design matrix
 #'
-#'
-#' @usage \code{isnormalr:::box_plot_x(X)}
+#' @inheritParams VIF
 #'
 #' @details
 #' The box plot is a diagram that is used to graphically represent
@@ -20,11 +19,8 @@
 #' points are the minimum, the lower quartile, the median, the upper
 #' quartile and the maximum.
 #'
-#'
-#' @param X design matrix (nxk)
-#'
-#'
 #' @return
+#' qqplot-object
 #'
 #'
 #' @references
@@ -37,40 +33,43 @@
 #' @examples
 #' \dontrun{
 #' Z <- matrix(rnorm(100), ncol = 10)
-#' isnormalr:::box_plot_x(Z)
+#' olsdiagnosticR:::box_plot_x(Z)
 #'
 #' Y <- matrix(rexp(100), ncol = 10)
-#' isnormalr:::box_plot_x(Y)
+#' olsdiagnosticR:::box_plot_x(Y)
 #' }
 #'
 #' @import
 #' ggplot2
 box_plot_x <- function(X){
 
+  # deleting the intercept
   if(colnames(X)[1] == '(Intercept)'){
     X <- X[, -1]
 
   }
+  # create a DataFrame
   X <- data.frame(X)
+  # save save the number of observation
   n <- dim(X)[1]
+  # save the number of parameters
   k <- dim(X)[2]
 
-  # only use numeric and non factor variable
+  # find factor columns
   isfactor <- sapply(X, is.factor)
+  # find numeric columns
   isnumeric <- sapply(X, is.numeric)
+  # filter for factor columns or numeric columns
   filter <- isnumeric | !isfactor
 
   # apply the filter on X
   X <- X[, filter]
 
   #----------- generate plot
-  bWp <- ggplot2::ggplot(stack(X), aes(X=ind, y = values)) +
-    ggplot2::geom_boxplot(fill="#666666", alpha=0.6, color='black',
-                          outlier.colour="black") +
-    #theme(axis.text.x=element_blank(),
-    #      axis.title.y = element_blank())
-    #geom_jitter(shape=13, position=position_jitter(0.2)) +
-    ggplot2::facet_wrap(~ind, scales="free")
+  bWp <- ggplot2::ggplot(utils::stack(X), aes(X=ind, y = values)) +
+    ggplot2::geom_boxplot(fill='#666666', alpha=0.6, color='black',
+                          outlier.colour='black') +
+    ggplot2::facet_wrap(~ind, scales='free')
 
   # add xlab, ylab and title
   title <- ifelse(k > 1,
@@ -80,7 +79,7 @@ box_plot_x <- function(X){
 
 
   # add the theme
-  bWp <- bWp + theme_isnormalr() +
+  bWp <- bWp + theme_olsdiagnosticR() +
     theme(axis.title.x=element_blank(),
           axis.text.x=element_blank(),
           axis.ticks.x=element_blank(),
@@ -95,10 +94,7 @@ box_plot_x <- function(X){
 #' @description
 #' A histogram for each numeric column in the design matrix
 #'
-#' @keywords
-#'
-#' @usage
-#' \code{isnormalr:::hist_x(X)}
+#' @inheritParams box_plot_x
 #'
 #' @details
 #' A histogram is a graphical representation of the frequency
@@ -116,11 +112,8 @@ box_plot_x <- function(X){
 #' Further information about histograms can be found in the
 #' documentation \code{\link{hist}}
 #'
-#' @inheritParams box_plot_x
-#'
-#'
-#'
 #' @return
+#' qqplot-object
 #'
 #' @references
 #' Bernd Rönz, Hans G. Strohe: Lexikon Statistik. Gabler Verlag,
@@ -137,34 +130,46 @@ box_plot_x <- function(X){
 #'
 #' @examples
 #' \dontrun{
-#'
+#' set.seed(1678)
+#' X <- data.frame(matrix(rnorm(1000), ncol = 9))
+#' olsdiagnostic:::hist_x(X = X)
 #' }
 #'
 #' @import
 #' ggplot2
-#' tidyr
 hist_x <- function(X){
 
+    # deleting the intercept
   if(colnames(X)[1] == '(Intercept)'){
     X <- X[, -1]
   }
+  # create a DataFrame
   X <- data.frame(X)
+  # save number of observation
   n <- dim(X)[1]
+  # save number of coefficients
   k <- dim(X)[2]
-  bins <- isnormalr:::Square.root(n)
-  # Used to hold only numeric columns
-  nums <- apply(X, 2, is.numeric)
+  # define the number of bins for the histograms
+  bins <- Square_root(n)
+  # filter only numeric values
+  filter <- apply(X, 2, is.numeric)
+  # apply the filter
+  X <- X[, filter]
 
-    X <- X[, nums]
-    # Convert to key-value pairs
-  X <- tidyr::gather(X)
-    # Plot the values
-  h <-  ggplot2::ggplot(X, aes(value)) +
-      # In separate panals
-      ggplot2::facet_wrap(~ key, scales='free') +
-      # As histogram
-      ggplot2::geom_histogram(col=('black'), alpha=0.6,
-                              bins=bins)
+  # ------------- generate plot
+  h <- ggplot2::ggplot(utils::stack(X), aes(values)) +
+            ggplot2::facet_wrap(~ind, scales='free') +
+            ggplot2::geom_histogram(col = 'black', alpha=0.6,
+                                  bins = bins)
+
+
+
+  #h <-  ggplot2::ggplot(X, aes(value)) +
+  #    # In separate panals
+  #    ggplot2::facet_wrap(~ key, scales='free') +
+  #    # As histogram
+  #    ggplot2::geom_histogram(col=('black'), alpha=0.6,
+  #                            bins=bins)
 
   # add title
   title <- ifelse(k > 1,
@@ -172,8 +177,8 @@ hist_x <- function(X){
                   'Histogram of the independend variable')
   h <- h + ggtitle(title)
 
-  # add theme
-  h <- h + theme_isnormalr() +
+  # add theme and delete x title
+  h <- h + theme_olsdiagnosticR() +
     theme(axis.title.x=element_blank(),
           axis.ticks.x=element_blank())
   return(h)
@@ -182,7 +187,10 @@ hist_x <- function(X){
 #' @title
 #' Influence Observation
 #'
-#' @param lm a lm model
+#' @inheritParams VIF
+#'
+#' @param e
+#' a single numeric vector of data values.
 #'
 #' @description
 #' This function is a suite of functions that can be used to compute
@@ -190,19 +198,57 @@ hist_x <- function(X){
 #' linear models discussed in Belsley, Kuh and Welsch (1980),
 #' Cook and Weisberg (1982)
 #'
-#'
-#' @usage
-#' \code{isnormalr:::influence.observation(object)}
-#'
 #' @details
-#' def of Standardized residuals
-#' def of Studentized residuals
-#' deg of Hat_Values / Lavarage Values
-#' def of Cooks distance
+#' \strong{Hat_Values / Lavarage Values}
+#'   are a measure of the effect of a particular observation
+#'   on the regression predictions due to the position of that
+#'   observation in the space of the inputs. In general, the farther
+#'   a point is from the center of the input space, the more leverage
+#'   it has. Because the sum of the leverage values is p, an
+#'   observation i can be considered as an outlier if its leverage
+#'   substantially exceeds the mean leverage value, p/n, for example,
+#'   a value larger than 2*p/n.
 #'
 #'
+#' \strong{Cooks distance}
+#'   is a measure of an observation or instances’
+#'   influence on a linear regression. Instances with a large influence
+#'   may be outliers and datasets that have a large number of highly
+#'   influential points might not be good predictors to fit linear models.
+#'
+#' The \strong{Standardized residuals}
+#'   is the residual divided by its standard
+#'   error. Standardization is a method of transforming data so that
+#'   its mean value is zero and the standard deviation is one. If the
+#'   distribution of residuals is approximately normal, then 95% of the
+#'   standardized residuals should lie between -2 and +2, if many of the
+#'   residuals lie outside + or - 2, then they might be considered
+#'   unusual. However, about 5% of the residuals could happen to be
+#'   outside this region.
+#'
+#' The \strong{Studentized residuals}
+#'   take into account that the variance of
+#'   the predicted value used in calculating residuals is not constant.
+#'   The variability of cases close to the sample mean for an
+#'   independent variable have smaller variance compared to cases
+#'   further away from the mean. The studentized residual takes this
+#'   change in variability into account by dividing the observed
+#'   residual by an estimate of the standard deviation of the residual
+#'   at that point. Norusis argues that this adjustment makes violation
+#'   of regression assumptions more visible, so it is preferred to
+#'   standardized residuals.
 #'
 #' @return
+#'  a list with following values:
+#'
+#'  - Hat_Values / Lavarage Values (leverage.value)
+#'
+#'  - Cooks distance (cooks.distance)
+#'
+#'  - Standardized residuals(standardized.residuals)
+#'
+#'  - Studentized residuals (studentized.residuals)
+#'
 #'
 #' @references
 #' Cook, R. D. and Weisberg, S. (1984) Residuals and Influence in
@@ -215,57 +261,63 @@ hist_x <- function(X){
 #' using the deviance and single case deletions. Applied Statistics
 #' 36, 181--191.
 #'
-influence.observation <- function(object){
-## Cook's distance as levrage representation
+#' Stevenson, Wiliam B. (2008) Analyzing Residuals.
+#'
+#' @examples
+#' \dontrun{
+#' X <- data.frame(matrix(rnorm(1000), nrow = 100))
+#' resid <- rnorm(100)
+#' olsdiagnosticR:::influence_observation(X = X, e = error)
+#' }
+influence_observation <- function(X, e){
 
-  # second case
-  X <- model.matrix(object)
-  e <- object$residuals
+  # save the number of observations
   n <- dim(X)[1]
+  # save the number of coefficients
   p <- dim(X)[2]
+  # calculation of the variance
   s2 <- sum(e^2) / (n - p)
 
-  # Calculate the projection matrix
+  # calculate the projection matrix
   H <- X %*% solve(t(X) %*% X) %*% t(X)
-  # Exctract the lavarage Values
+  # extract the leverage Values
   h <- diag(H)
-  # Calculate the Cooks distance
+  # calculate the Cooks distance
   D <- (e^2 / (s2 * p)) * (h / (1 - h)^2)
 
-  #  Calculate the standardized residuals
+  #  calculate the standardized residuals
   r <- e / (sqrt(s2) * sqrt(1-h))
 
-  # Calculate the studentized residuals
+  # calculate the studentized residuals
   t <- r * sqrt((n - (p - 1) - 2) /
                   (n - (p - 1) - 1 - r^2))
 
 
-  # Create an s3 object
-  influence.obs <- list(leverage.value = h,
+  # save the results in a list
+  influence_obs <- list(leverage.value = h,
                         cooks.distance = D,
                         standardized.residuals = r,
                         studentized.residuals = t)
 
-  #class(influence.obs) <- 'influential.observation'
-
-  return(influence.obs)
+  return(influence_obs)
 }
 
 #' @title
 #' Visualisation of the cook's distances
 #'
-#' @param cd Cook's distance
-#' @param p number of coefficents p = k - 1
+#' @description
+#' A barplot for cook's distances values
 #'
-#' @return Barplot
+#' @inheritParams qq_plot
+#'
+#' @details
+#' Further information about cook's distances can be found in the
+#' documentation \code{\link{influence_observation}}
 #'
 #'
+#' @return
+#' qqplot-object
 #'
-#'
-#' @import
-#' ggplot2
-#' ggrepel
-#' @examples
 #'
 #' @references
 #' Cook, R. D. and Weisberg, S. (1984) Residuals and Influence in
@@ -278,39 +330,53 @@ influence.observation <- function(object){
 #' using the deviance and single case deletions. Applied Statistics
 #' 36, 181--191.
 #'
+#' @examples
+#' \dontrun{
+#' X <- data.frame(matrix(rnorm(1000), nrow = 100))
+#' resid <- rnorm(100)
+#' inf_obs <- olsdiagnosticR:::influence_observation(X = X, e = error)
+#' olsdiagnosticR:::plot_cd(influence_obs = inf_obs)
+#' }
 #'
-plot.cd <- function(CookD, StudRes, Leverage){
+#' @import
+#' ggplot2
+#' ggrepel
+plot_cd <- function(influence_obs){
+  # save the number of observations
+  n <- length(influence_obs$standardized.residuals)
 
-  n <- length(CookD)
-  thresh_Lev <- 2 * mean(Leverage)
-  thresh_CookD <- 1
+  # save the input variable in a DataFrame
+  df <- data.frame('Hat.Values'=influence_obs$leverage.value,
+                   'Studentized.Residuals'=
+                     influence_obs$studentized.residuals,
+                   'Cooks.Distance'=influence_obs$cooks.distance)
 
-  df <- data.frame('Hat.Values'=Leverage,
-                   'Studentized.Residuals'=StudRes,
-                   'Cooks.Distance'=CookD)
-
+  # save the names of the observations
   names <- rownames(df)
-  ## add possible influencial observations
+  # initialization of a vector for the influential obs.
   all.bool <- rep(FALSE, times = n)
-  hatval <- which(df$Hat.Values >=  thresh_Lev)
-  rstud <- order(abs(df$Studentized.Residuals),
-                 decreasing = TRUE)[1:2]
-  cook <- which(df$Cooks.Distance > 1)
-  all <- sort(union(rstud, union(hatval, cook)))
+  # find the possible influential for Hat Values
+  hatval <- order(df$Hat.Values, decreasing = TRUE)[1:2]
+  # find the possible influential obs for rstud
+  rstud <- order(abs(df$Studentized.Residuals), decreasing = TRUE)[1:2]
+  # find the possible influential obs. for CookD
+  cook <-order(df$Cooks.Distance, decreasing = TRUE)[1:2]
+  # keep only all influential obs. one time
+  all <- union(rstud, union(hatval, cook))
+  # define the influential obs.
   all.bool[all] <- TRUE
-  df <- cbind(df, all.bool)
 
   # create the plot
   cd.plot <- ggplot(df, aes(x = names, y = Cooks.Distance,
                             fill = all.bool)) +
-    geom_bar(stat="identity") +
+    geom_bar(stat='identity') +
     scale_fill_manual(values = c('#757575', 'red'))
 
   # add thresh line
   cd.plot <- cd.plot +
-    geom_abline(slope=0, intercept = thresh_CookD,
-                col = "red", lty=2)
-  # add pissible influencial observations
+    geom_abline(slope=0, intercept = 1,
+                col = 'red', lty=2)
+  # add possible influential observations
   cd.plot <- cd.plot +
     ggrepel::geom_text_repel(aes(label=
                              ifelse(all.bool,
@@ -323,7 +389,7 @@ plot.cd <- function(CookD, StudRes, Leverage){
     scale_y_continuous(name='Cooks Distance') +
     ggplot2::ggtitle('Cook`s Distance plot')
   # add the theme
-  cd.plot <- cd.plot + isnormalr:::theme_isnormalr()
+  cd.plot <- cd.plot + theme_olsdiagnosticR()
   cd.plot <- cd.plot +
     theme(axis.text.x = element_blank(),#element_text(angle = 90, hjust = 1, vjust=0.3, size=10),
           axis.ticks = element_blank(),
@@ -331,132 +397,140 @@ plot.cd <- function(CookD, StudRes, Leverage){
           panel.grid.major = element_line(colour = NA),
           panel.grid.minor = element_line(colour = '#cccccc'),
           legend.position = 'none')
+  # add footnote
+  cd.plot <- cd.plot + labs(caption = 'possible outlier')
 
   return(cd.plot)
 }
 
 
 #' @title
-#' Plots the influence of observation on the regression line
+#' Leverage values vs. Studentized residuals
 #'
 #' @description
+#' Bubble-Plot of the Leverage values vs. Studentized residuals with the
+#' scale of the bubble by the cook's distance
 #'
-#' @usage \code{isnormalr:::influence.plot(t, h, d)}
+#' @inheritParams qq_plot
 #'
-#' @description
-#'
-#'
-#' @param t numeric vector of studentized residuals
-#' @param h numeric vector of hat values
-#' @param cd numeric vector of cook distance values
-#'
-#'
+#' @details
+#' Further information about Studentized residuals, Leverage values or
+#' cook's distances,  can be found in the documentation
+#' \code{\link{influence_observation}}
 #'
 #' @return
-#' A plot
+#' ggplot-object
 #'
-#' @references
-#'
-#'
+#' @examples
+#' \dontrun{
+#' set.seed(167)
+#' X <- data.frame(matrix(rnorm(1000), nrow = 100))
+#' resid <- rnorm(100)
+#' inf_obs <- olsdiagnosticR:::influence_observation(X = X, e = error)
+#' olsdiagnosticR:::influence_plot(influence_obs = inf_obs)
+#' }
 #'
 #' @import
 #' ggplot2
 #' ggrepel
-influence.plot <- function(t, h, cd){ # r or t?
-  n <- length(cd)
-  m2 <- 2 * mean(h)
-  m3 <- 3 * mean(h)
-  df <- data.frame('Hat.Values'=h,
-                   'Studentized.Residuals'=t,
-                   'Cooks.Distance'=cd)
-  # scale of the bubbels
-  scale <- 10 / max(df$Cooks.Distance)
+influence_plot <- function(influence_obs){
+
+  # save the number of observations
+  n <- length(influence_obs$standardized.residuals)
+
+  # 2 * mean of the hat value
+  m2 <- 2 * mean(influence_obs$leverage.value)
+  # 3 * mean of the hat value
+  m3 <- 3 * mean(influence_obs$leverage.value)
+  # save the input variable in a DataFrame
+  df <- data.frame('Hat.Values'=influence_obs$leverage.value,
+                   'Studentized.Residuals'=
+                     influence_obs$standardized.residuals,
+                   'Cooks.Distance'=influence_obs$cooks.distance)
+  # ------------- generate plot
   p <- ggplot(df, aes(x=Hat.Values, y=Studentized.Residuals,
                       size=Cooks.Distance)) +
     geom_point(shape=1) +  # make rings
-    scale_size(range = c(0, min(2*n * max(cd), 25)))   # scale the size of the rings
+    # Scale the size of the bubbles
+    scale_size(range = c(0, min(2*n * max(df$Cooks.Distance), 25)))   # scale the size of the rings
 
 
   # add vertical lines
-  if(m3 <= max(h)){
+  if(m3 <= max(df$Hat.Values)){
     p <- p + geom_vline(xintercept=m3, lty=2) +
       geom_vline(xintercept = m2, lty=2)
-  }else if(m2 <= max(h)){
+  }else if(m2 <= max(df$Hat.Values)){
     p <- p + geom_vline(xintercept=m2, lty=2)
   }
 
   # add horizontal lines
-  if(min(t) < 0 & max(t) > 0){
+  if(min(df$Studentized.Residuals) < 0 &
+     max(df$Studentized.Residuals) > 0){
     p <- p + geom_hline(yintercept = 0, lty=2)
   }
-  if(min(t) < -2 & max(t) >= 2){
+  if(min(df$Studentized.Residuals) < -2 &
+     max(df$Studentized.Residuals) >= 2){
     p <- p + geom_hline(yintercept = 2, lty=2) +
       geom_hline(yintercept = -2, lty=2)
-  }else if(min(t) > -2 & max(t) >= 2){
+  }else if(min(df$Studentized.Residuals) > -2 &
+           max(df$Studentized.Residuals) >= 2){
     p <- p + geom_hline(yintercept = 2, lty=2)
-  }else if(min(t) <= -2 & max(t) <= 2){
+  }else if(min(df$Studentized.Residuals) <= -2 &
+           max(df$Studentized.Residuals) <= 2){
     p <- p + geom_hline(yintercept = -2, lty=2)
   }
 
-  # add the names of the influence observations
-  names <- names(cd)
-  ############# Alternative 2 ######### works well ###########
-  #if(sum(h >= m2 | t >= 2 | t<= -2) < 10){
-  #   p <- p + ggrepel::geom_text_repel(aes(label=ifelse(h >= m2,
-  #                                                   names,'')),
-  #             size=4) +
-  #            ggrepel::geom_text_repel(aes(label=
-  #                                           ifelse(t >= 2 | t <= -2,
-  #                                            names,'')), size=4)
-  #}else{ #default method if many observations
-  #  all.bool <- rep(FALSE, times = n)
-  #  hatval <- order(df$Hat.Values, decreasing = TRUE)[1:2]
-  #  rstud <- order(abs(df$Studentized.Residuals), decreasing = TRUE)[1:2]
-  #  cook <- order(df$Cooks.Distance, decreasing = TRUE)[1:2]
-  #  all <- union(rstud, union(hatval, cook))
-  #  all.bool[all] <- TRUE
-  #  p <- p + ggrepel::geom_text_repel(aes(label=
-  #                                      ifelse(all.bool,
-  #                                             names, "")), size = 4)
-  #}
-
-  ## How the lecture does it
+  # save the names of the observations
+  names <- rownames(df)
+  # initialization of a vector for the influential obs.
   all.bool <- rep(FALSE, times = n)
-  hatval <- which(df$Hat.Values >=  m2)
+  # find the possible influential for Hat Values
+  hatval <- order(df$Hat.Values, decreasing = TRUE)[1:2]
+  # find the possible influential obs for rstud
   rstud <- order(abs(df$Studentized.Residuals), decreasing = TRUE)[1:2]
-  cook <- which(df$Cooks.Distaance > 1)
+  # find the possible influential obs. for CookD
+  cook <-order(df$Cooks.Distance, decreasing = TRUE)[1:2]
+  # keep only all influential obs. one time
   all <- union(rstud, union(hatval, cook))
+  # define the influential obs.
   all.bool[all] <- TRUE
+
+  # ------------- add the influential obs
+  # add the labels of the influential obs
   p <- p + ggrepel::geom_text_repel(aes(label=
                                       ifelse(all.bool,
-                                             names, '')), size = 4)
+                                             names, '')), size = 4,
+                                    colour = 'red')
 
   # add ylab, ylab and title
   p <- p + scale_x_continuous(name = 'Leverage') +
     scale_y_continuous(name = 'Studentized Residuals') +
     ggplot2::ggtitle('Leverage vs. Studentized Residuals')
   # add the theme
-  p <- p + theme_isnormalr() +
-    theme(legend.position = "none") # delete the legend
+  p <- p + theme_olsdiagnosticR() +
+    theme(legend.position = 'none') # delete the legend
 
-  # add color information
+  # add footnote
+  p <- p + labs(caption = 'possible outlier')
+
+  # add color for further information
   p <- p + ggplot2::geom_rect(aes(xmin = -Inf, xmax = m2,
                                  ymin = -2, ymax = 2),
                              fill = 'green', alpha=0.003) +
     ggplot2::geom_rect(aes(xmin = -Inf, xmax = m2,
-                           ymin = -Inf, ymax = -2.00001),
+                           ymin = -Inf, ymax = -2 - 1e-08),
                        fill = 'orange', alpha = 0.003) +
     ggplot2::geom_rect(aes(xmin = -Inf, xmax = m2,
-                           ymin = 2.00001, ymax = Inf),
+                           ymin = 2 + 1e-08, ymax = Inf),
                        fill = 'orange', alpha = 0.003) +
-    ggplot2::geom_rect(aes(xmin = m2 + 0.0001, xmax = Inf,
+    ggplot2::geom_rect(aes(xmin = m2 + 1e-08, xmax = Inf,
                             ymin = -2, ymax = 2),
                         fill = 'orange', alpha = 0.003) +
-    ggplot2::geom_rect(aes(xmin = m2 + 0.0001, xmax = Inf,
-                           ymin = 2.0001, ymax = Inf),
+    ggplot2::geom_rect(aes(xmin = m2 + 1e-08, xmax = Inf,
+                           ymin = 2 + 1e-08, ymax = Inf),
                        fill = 'red', alpha = 0.003) +
-    ggplot2::geom_rect(aes(xmin = m2 + 0.0001, xmax = Inf,
-                           ymin = -Inf, ymax = -2.0001),
+    ggplot2::geom_rect(aes(xmin = m2 + 1e-08, xmax = Inf,
+                           ymin = -Inf, ymax = -2 - 1e-08),
                        fill = 'red', alpha = 0.003)
 
   return(p)

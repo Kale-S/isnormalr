@@ -4,13 +4,14 @@
 \alias{qq_plot}
 \title{QQ-Plot of the residuals}
 \usage{
-\code{isnormalr:::qq_plot(X)}
+qq_plot(influence_obs)
 }
 \arguments{
-\item{X}{a numeric vector of data values}
+\item{influence_obs}{a list with following values:
+leverage.value, cooks.distance, studentized.residuals}
 }
 \value{
-An QQ-Plot
+qqplot-object
 }
 \description{
 Plots  studentized residuals from a linear model, against
@@ -24,19 +25,16 @@ distributions, or by robust regression.
 }
 \examples{
 \dontrun{
-z <- rnorm(100)
-isnormalr:::qq_plot(z)
-
-y <- rexp(100)
-isnormalr:::qq_plot(y)
-
+X <- data.frame(matrix(rnorm(1000), nrow = 100))
+resid <- rnorm(100)
+inf_obs <- olsdiagnosticR:::influence_observation(X = X, e = error)
+olsdiagnosticR:::qq_plot(influence_obs = inf_obs)
 }
 
 }
 \references{
 Fox, J. 2016 Applied Regression Analysis and Generalized Linear Models, Third Edition. Sage.
+
 Fox, J. and Weisberg, S. 2019 An R Companion to Applied Regression, Third Edition, Sage.
 Atkinson, A. C. 1985 Plots, Transformations, and Regression. Oxford.
 }
-\keyword{\link{distribution}}
-\keyword{\link{regression}}

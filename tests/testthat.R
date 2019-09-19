@@ -1,4 +1,4 @@
 library(testthat)
-library(isnormalr)
+library(olsdiagnosticR)
 
-test_check("isnormalr")
+test_check("olsdiagnosticR")

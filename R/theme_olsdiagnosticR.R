@@ -1,4 +1,4 @@
-theme_isnormalr <- function(){
+theme_olsdiagnosticR <- function(){
   ltgray <- '#cccccc'
   dkgray <- '#757575'
   dkgray2 <- '#666666'
@@ -12,7 +12,7 @@ theme_isnormalr <- function(){
       plot.subtitle = element_text(hjust = 0,
                                    size = rel(1), face = 'plain', colour = dkgray),
       plot.caption = element_text(hjust = 0, size = rel(1),
-                                  face = 'plain', colour = dkgray),
+                                  face = 'plain', colour = 'red'),
 
       strip.text = element_text(hjust = 0, size = rel(1),
                                 colour = dkgray2, face = 'plain'),
@@ -37,6 +37,6 @@ theme_isnormalr <- function(){
       legend.key = element_rect(colour = NA),
       legend.position = 'right', legend.direction = 'vertical',
 
-      plot.margin = unit(c(1, 2, 1, 1), 'cm')
+      plot.margin = unit(c(1, 2, 1, 1), 'cm'),
     )
 }

@@ -1,25 +1,25 @@
 context('Test the functons form normal_assumption.R')
 
 
-#### Shapiro_Wilk.test
-testthat::test_that('Shapiro_Wilk.test`s output is:
+#### Shapiro_Wilk_test
+testthat::test_that('Shapiro_Wilk_test`s output is:
                     list and s3 object', {
                       set.seed(137)
                       error <- rnorm(20)
-                      sw <- isnormalr:::Shapiro_Wilk.test(error)
+                      sw <- olsdiagnosticR:::Shapiro_Wilk_test(error)
                       testthat::expect_type(sw, 'list')
                       testthat::expect_s3_class(sw, 'htest')
                     })
-testthat::test_that('Shapiro_Wilk.test has the right length', {
+testthat::test_that('Shapiro_Wilk_test has the right length', {
   set.seed(137)
   error <- rnorm(39)
-  sw <- isnormalr:::Shapiro_Wilk.test(error)
+  sw <- olsdiagnosticR:::Shapiro_Wilk_test(error)
   testthat::expect_true(length(sw) == 4)
 })
-testthat::test_that('Shapiro_Wilk.test get the right resutl', {
+testthat::test_that('Shapiro_Wilk_test get the right resutl', {
   set.seed(1373)
   error <- rnorm(100)
-  sw <- isnormalr:::Shapiro_Wilk.test(error)
+  sw <- olsdiagnosticR:::Shapiro_Wilk_test(error)
   testthat::expect_equal(sw,
                          structure(list(
                            statistic = c(w = 0.986630627162333),
@@ -31,7 +31,7 @@ testthat::test_that('Shapiro_Wilk.test get the right resutl', {
 
   set.seed(1373)
   error <- rexp(100, 0.2)
-  sw <- isnormalr:::Shapiro_Wilk.test(error)
+  sw <- olsdiagnosticR:::Shapiro_Wilk_test(error)
   testthat::expect_equal(sw,
                          structure(list(
                            statistic = c(w = 0.835614640946988),
@@ -43,27 +43,27 @@ testthat::test_that('Shapiro_Wilk.test get the right resutl', {
 })
 
 
-#### Jarque.bera
-testthat::test_that('jarque.bera`s output is:
+#### jarque_bera
+testthat::test_that('jarque_bera`s output is:
                     list and s3 object',{
   set.seed(123)
   error <- rnorm(20)
-  jb <- isnormalr:::jarque.bera(error)
+  jb <- olsdiagnosticR:::jarque_bera(error)
   testthat::expect_true(typeof(jb) == 'list')
   testthat::expect_s3_class(jb, 'htest')
 })
-testthat::test_that('jarque.bera has the right length', {
+testthat::test_that('jarque_bera has the right length', {
   set.seed(123)
   error <- rnorm(30)
-  jb <- isnormalr:::jarque.bera(error)
+  jb <- olsdiagnosticR:::jarque_bera(error)
   testthat::expect_true(length(jb) == 5)
 })
 
-testthat::test_that('Elements inf jarque.bera has the
+testthat::test_that('Elements inf jarque_bera has the
                     right of entries', {
   set.seed(137)
   error <- rnorm(200)
-  jb <- isnormalr:::jarque.bera(error)
+  jb <- olsdiagnosticR:::jarque_bera(error)
   testthat::expect_equal(jb,
                  structure(list(
                    statistic = c(JB = 7.16502968309851),
@@ -74,7 +74,7 @@ testthat::test_that('Elements inf jarque.bera has the
                  class = "htest"))
   set.seed(137)
   error <- rexp(200)
-  jb <- isnormalr:::jarque.bera(error)
+  jb <- olsdiagnosticR:::jarque_bera(error)
   testthat::expect_equal(jb,
                      structure(list(
                        statistic = c(JB = 994.215814661187),
@@ -86,48 +86,58 @@ testthat::test_that('Elements inf jarque.bera has the
 
 })
 
+#### anderson_darling_tes
+testthat::test_that('anderson_darling_test`s output is:
+                    list and s3 object',{
+  set.seed(123)
+  error <- rnorm(20)
+  ad <- olsdiagnosticR:::anderson_darling_test(error)
+  testthat::expect_true(typeof(ad) == 'list')
+  testthat::expect_s3_class(ad, 'htest')
+})
 
-#### cramerv_mises.test
-testthat::test_that('cramerv_mises.test output is:
-                    list and s3 object', {
+testthat::test_that('anderson_darling_test has the right length', {
+  set.seed(123)
+  error <- rnorm(30)
+  ad <- olsdiagnosticR:::anderson_darling_test(error)
+  testthat::expect_true(length(ad) == 4)
+})
+
+testthat::test_that('Elements inf anderson_darling_test has the
+                    right of entries', {
   set.seed(137)
   error <- rnorm(200)
-  k <- isnormalr:::cramerv_mises.test(error)
-  testthat::expect_type(k, 'list')
-  testthat::expect_s3_class(k, 'htest')
+  ad <- olsdiagnosticR:::anderson_darling_test(error)
+  testthat::expect_equal(ad,
+                         structure(list(
+                         statistic = c(A = 0.49207792204021),
+                         p.value = 0.215969387994989,
+                         method = "Anderson-Darling normality test",
+                         data.name = "error"),
+                         class = "htest"))
+   set.seed(137)
+   error <- rexp(200)
+   ad <- olsdiagnosticR:::anderson_darling_test(error)
+   testthat::expect_equal(ad,
+                          structure(list(
+                          statistic = c(A = 11.8226573559874),
+                          p.value = 3.7e-24,
+                          method = "Anderson-Darling normality test",
+                          data.name = "error"),
+                          class = "htest"))
 })
-testthat::test_that('cramerv_mise.test hass the right length', {
-  set.seed(137)
-  error <- rnorm(200)
-  k <- isnormalr::cramerv_mises.test(error)
-  testthat::expect_true(length(k) == 4)
-})
-# because the pvalue dosent work
-#testthat::test_that('cramerv_mises.test get the right results', {
-#  set.seed(137)
-#  error <- rnorm(200)
-#  k <- isnormalr:::cramerv_mises.test(error)
-#  testthat::expect_equal(k,
-#                      )
-#
-#  set.seed(137)
-#  error <- rexp(200)
-#  k <- isnormalr:::cramerv_mises.test(error)
-#  testthat::expect_equal(k,
-#                      )
-#})
 
-#### Square.root
-testthat::test_that('Square.root get the right number as output',{
-  testthat::expect_equal(isnormalr:::Square.root(4), 2)
-  testthat::expect_equal(isnormalr:::Square.root(12), 3)
-  testthat::expect_equal(isnormalr:::Square.root(2893), 54)
+#### Square_root
+testthat::test_that('Square_root get the right number as output',{
+  testthat::expect_equal(olsdiagnosticR:::Square_root(4), 2)
+  testthat::expect_equal(olsdiagnosticR:::Square_root(12), 3)
+  testthat::expect_equal(olsdiagnosticR:::Square_root(2893), 54)
 })
-testthat::test_that('Square.root returns a double',{
-  testthat::expect_equal(typeof(isnormalr:::Square.root(4)), 'double')
-  testthat::expect_equal(typeof(isnormalr:::Square.root(12)), 'double')
+testthat::test_that('Square_root returns a double',{
+  testthat::expect_equal(typeof(olsdiagnosticR:::Square_root(4)), 'double')
+  testthat::expect_equal(typeof(olsdiagnosticR:::Square_root(12)), 'double')
 })
-testthat::test_that('Square.root returns warnings by negativ numbers', {
-  testthat::expect_warning(isnormalr:::Square.root(-9))
-  testthat::expect_warning(isnormalr:::Square.root(-80))
+testthat::test_that('Square_root returns warnings by negativ numbers', {
+  testthat::expect_warning(olsdiagnosticR:::Square_root(-9))
+  testthat::expect_warning(olsdiagnosticR:::Square_root(-80))
 })

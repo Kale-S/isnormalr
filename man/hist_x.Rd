@@ -4,13 +4,13 @@
 \alias{hist_x}
 \title{Histograms}
 \usage{
-\code{isnormalr:::hist_x(X)}
+hist_x(X)
 }
 \arguments{
-\item{X}{design matrix (nxk)}
+\item{X}{Data.Frame}
 }
 \value{
-
+qqplot-object
 }
 \description{
 A histogram for each numeric column in the design matrix
@@ -33,7 +33,9 @@ documentation \code{\link{hist}}
 }
 \examples{
 \dontrun{
-
+set.seed(1678)
+X <- data.frame(matrix(rnorm(1000), ncol = 9))
+olsdiagnostic:::hist_x(X = X)
 }
 
 }
@@ -50,4 +52,3 @@ Arens et al.: Mathematik. Spektrum Akademischer Verlag,
 D. Freedman, R. Pisani, R. Purves: Statistics. Third edition.
 W.W.Norton, 1998.
 }
-\keyword{}

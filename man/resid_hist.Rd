@@ -7,19 +7,18 @@
 resid_hist(X)
 }
 \arguments{
-\item{X}{a numeric vector of data values}
+\item{X}{a single numeric vector of data values.}
 }
 \value{
-Plot a histogram of the residuals with a normal density
+ggplot-object.
 }
 \description{
-This function genertates a Histogramm of the residuals with a normal Density
+This function generates a histogramm of the residuals with
+the theoretical normal density.
 }
 \examples{
 set.seed(1234)
-X <- matrix(c(rnorm(200), rnorm(200)), ncol=2)
-e <- rnorm(200)
-b <- matrix(x(2, 5), ncol=1)
-y <- X \%*\% b + e
-resid_hist(lm(y ~ X))
+X <- rnorm(200)
+olsdiagnosticR:::resid_hist(X = X)
+
 }
