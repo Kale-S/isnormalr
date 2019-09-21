@@ -147,7 +147,7 @@ olsdiagnostic <- function(object, normtest = 'Shapiro-Wilk', pval = 0.05){
   }
   ## check the number of observations
   if(any(is.na(n)) || any(is.na(y)) || any(is.na(y_hat)) ||
-     any(is.na(error)) || any(is.na(x))){
+     any(is.na(error)) || any(is.na(X))){
     stop('The lm object contains missing obeservation')
   }
   ## check if the normtest is Shapiro-Wilk
