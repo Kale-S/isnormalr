@@ -14,15 +14,15 @@ knitr::opts_chunk$set(
 ```
 # olsdiagnosticR
 
-<!-- badges: start -->
-<!-- badges: end -->
+
+# Motivation
 
 The R-Package was developed for the statistical consulting of the University of 
-Göttingen to assist students in checking common assumptions of linear regression quickl
+Göttingen to assist students in checking common assumptions of linear regression quickly
 and easily. It also provides students with an automated recommendation for the further 
 procedure if an assumption is not fulfilled.
 
-## Installation
+# Installation
 
 You can install the released version of olsdiagnosticR from [git](https://github.com/Kale-S/olsdiagnosticR) with:
 
@@ -33,7 +33,7 @@ install_github("Kale-S/olsdiagnosticR")
 library(olsdiagnosticR)
 ```
 
-## Example
+# Example
 
 This is a basic example which shows you how to solve a common problem:
 
